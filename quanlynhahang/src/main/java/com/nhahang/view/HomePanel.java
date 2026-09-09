@@ -1,15 +1,20 @@
 package com.nhahang.view;
 
+import com.nhahang.dao.DashboardDAO;
+import com.nhahang.dao.TableDAO;
 import com.nhahang.model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
 
 public class HomePanel extends JPanel {
 
     private final User currentUser;
+        private final TableDAO tableDAO = new TableDAO();
+        private final DashboardDAO dashboardDAO = new DashboardDAO();
 
     private static final Color BACKGROUND =
             new Color(246, 248, 252);
@@ -88,6 +93,32 @@ public class HomePanel extends JPanel {
     // ==========================================================
 
     private JPanel createContent() {
+
+                List<TableDAO.TableRecord> tableRecords = List.of();
+                int totalTables = 0;
+                int emptyTables = 0;
+                int servingTables = 0;
+                int pendingPayments = 0;
+
+                try {
+                        tableRecords = tableDAO.findAll();
+                        totalTables = tableRecords.size();
+                        for (TableDAO.TableRecord table : tableRecords) {
+                                if ("TRỐNG".equals(table.getStatus())) {
+                                        emptyTables++;
+                                } else if ("ĐANG PHỤC VỤ".equals(table.getStatus())) {
+                                        servingTables++;
+                                }
+                        }
+                        pendingPayments = dashboardDAO.countPendingPayments();
+                } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(
+                                        this,
+                                        "Không thể tải dữ liệu trang chủ:\n" + exception.getMessage(),
+                                        "Lỗi kết nối cơ sở dữ liệu",
+                                        JOptionPane.ERROR_MESSAGE
+                        );
+                }
 
         JPanel content =
                 new JPanel();
@@ -273,7 +304,7 @@ public class HomePanel extends JPanel {
 
         stats.add(
                 createStatCard(
-                        "10",
+                        String.valueOf(totalTables),
                         "Tổng số bàn",
                         BLUE,
                         "table"
@@ -282,7 +313,7 @@ public class HomePanel extends JPanel {
 
         stats.add(
                 createStatCard(
-                        "7",
+                        String.valueOf(emptyTables),
                         "Bàn đang trống",
                         GREEN,
                         "empty"
@@ -291,7 +322,7 @@ public class HomePanel extends JPanel {
 
         stats.add(
                 createStatCard(
-                        "3",
+                        String.valueOf(servingTables),
                         "Đang phục vụ",
                         RED,
                         "service"
@@ -300,7 +331,7 @@ public class HomePanel extends JPanel {
 
         stats.add(
                 createStatCard(
-                        "0",
+                        String.valueOf(pendingPayments),
                         "Chờ thanh toán",
                         new Color(
                                 245,
@@ -361,31 +392,16 @@ public class HomePanel extends JPanel {
 
         JPanel tableGrid =
                 new JPanel(
-                        new GridLayout(
-                                2,
-                                5,
-                                16,
-                                16
-                        )
+                        new GridLayout(0, 5, 16, 16)
                 );
 
         tableGrid.setOpaque(false);
 
-        for (
-                int i = 1;
-                i <= 10;
-                i++
-        ) {
-
-            boolean serving =
-                    i == 2 ||
-                    i == 5 ||
-                    i == 8;
-
+        for (TableDAO.TableRecord tableRecord : tableRecords) {
             tableGrid.add(
                     createTableCard(
-                            i,
-                            serving
+                            tableRecord.getId(),
+                            "ĐANG PHỤC VỤ".equals(tableRecord.getStatus())
                     )
             );
         }
@@ -514,7 +530,8 @@ public class HomePanel extends JPanel {
 
         JLabel summary =
                 new JLabel(
-                        "10 bàn  |  7 bàn trống  |  3 bàn đang phục vụ"
+                        totalTables + " bàn  |  " + emptyTables + " bàn trống  |  "
+                                + servingTables + " bàn đang phục vụ"
                 );
 
         summary.setForeground(

@@ -1,5 +1,8 @@
 package com.nhahang.view;
 
+import com.nhahang.controller.TableController;
+import com.nhahang.dao.TableDAO;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -63,7 +66,8 @@ public class TablePanel extends JPanel {
     // DATA DEMO
     // =========================================================
 
-    private final List<TableInfo> tables = new ArrayList<>();
+        private final List<TableInfo> tables = new ArrayList<>();
+        private final TableController tableController = new TableController();
 
     // =========================================================
     // CONSTRUCTOR
@@ -75,90 +79,9 @@ public class TablePanel extends JPanel {
 
         setBackground(BACKGROUND);
 
-        createDemoData();
-
         initUI();
 
         loadTables();
-    }
-
-    // =========================================================
-    // DEMO DATA
-    // =========================================================
-
-    private void createDemoData() {
-
-        tables.add(new TableInfo(
-                1,
-                "Bàn 01",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                2,
-                "Bàn 02",
-                "ĐANG PHỤC VỤ"
-        ));
-
-        tables.add(new TableInfo(
-                3,
-                "Bàn 03",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                4,
-                "Bàn 04",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                5,
-                "Bàn 05",
-                "ĐANG PHỤC VỤ"
-        ));
-
-        tables.add(new TableInfo(
-                6,
-                "Bàn 06",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                7,
-                "Bàn 07",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                8,
-                "Bàn 08",
-                "ĐANG PHỤC VỤ"
-        ));
-
-        tables.add(new TableInfo(
-                9,
-                "Bàn 09",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                10,
-                "Bàn 10",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                11,
-                "Bàn 11",
-                "TRỐNG"
-        ));
-
-        tables.add(new TableInfo(
-                12,
-                "Bàn 12",
-                "TRỐNG"
-        ));
     }
 
     // =========================================================
@@ -325,18 +248,7 @@ public class TablePanel extends JPanel {
 
         searchPanel.setOpaque(false);
 
-        JLabel searchIcon =
-                new JLabel("⌕");
-
-        searchIcon.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.PLAIN,
-                        24
-                )
-        );
-
-        searchIcon.setForeground(TEXT_GRAY);
+        JPanel searchIcon = createSearchIcon();
 
         searchIcon.setBorder(
                 new EmptyBorder(
@@ -502,12 +414,15 @@ public class TablePanel extends JPanel {
                 .setOpaque(false);
 
         scrollPane.setHorizontalScrollBarPolicy(
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
         );
 
         scrollPane.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
         );
+
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(24);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         center.add(
                 scrollPane,
@@ -525,11 +440,52 @@ public class TablePanel extends JPanel {
         );
     }
 
+        private JPanel createSearchIcon() {
+                JPanel icon = new JPanel() {
+                        @Override
+                        protected void paintComponent(Graphics graphics) {
+                                super.paintComponent(graphics);
+                                Graphics2D g2 = (Graphics2D) graphics.create();
+                                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                                RenderingHints.VALUE_ANTIALIAS_ON);
+                                g2.setColor(TEXT_GRAY);
+                                g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND,
+                                                BasicStroke.JOIN_ROUND));
+                                g2.drawOval(5, 5, 11, 11);
+                                g2.drawLine(14, 14, 20, 20);
+                                g2.dispose();
+                        }
+                };
+                icon.setOpaque(false);
+                icon.setPreferredSize(new Dimension(26, 26));
+                return icon;
+        }
+
     // =========================================================
     // LOAD TABLES
     // =========================================================
 
     private void loadTables() {
+
+                try {
+                        tables.clear();
+                        for (TableDAO.TableRecord record : tableController.loadTables()) {
+                                tables.add(new TableInfo(
+                                                record.getId(),
+                                                record.getName(),
+                                                record.getCapacity(),
+                                                record.getStatus()
+                                ));
+                        }
+                } catch (Exception exception) {
+                        tables.clear();
+                        JOptionPane.showMessageDialog(
+                                        this,
+                                        "Không thể tải dữ liệu bàn:\n" + exception.getMessage(),
+                                        "Lỗi kết nối cơ sở dữ liệu",
+                                        JOptionPane.ERROR_MESSAGE
+                        );
+                }
 
         tableContainer.removeAll();
 
@@ -669,8 +625,8 @@ public class TablePanel extends JPanel {
 
         card.setPreferredSize(
                 new Dimension(
-                        250,
-                        190
+                        290,
+                        210
                 )
         );
 
@@ -854,62 +810,41 @@ public class TablePanel extends JPanel {
         // BUTTON
         // =====================================================
 
-        JButton detail =
-                new JButton("Chi tiết");
+        JButton detail = createTableActionButton("Chi tiết", PRIMARY);
 
-        detail.setFont(
-                new Font(
-                        "Segoe UI",
-                        Font.BOLD,
-                        12
-                )
-        );
+        JButton edit = createTableActionButton("Sửa", PRIMARY);
 
-        detail.setForeground(
-                PRIMARY
-        );
+        JButton delete = createTableActionButton("Xóa", RED);
 
-        detail.setBackground(
-                new Color(
-                        239,
-                        246,
-                        255
-                )
-        );
-
-        detail.setFocusPainted(false);
-
-        detail.setBorder(
-                BorderFactory.createEmptyBorder(
-                        7,
-                        14,
-                        7,
-                        14
-                )
-        );
-
-        detail.setCursor(
-                Cursor.getPredefinedCursor(
-                        Cursor.HAND_CURSOR
-                )
+        JButton statusButton = createTableActionButton(
+                "Trạng thái",
+                empty ? GREEN : RED
         );
 
         detail.addActionListener(
                 e -> showTableDetail(table)
         );
 
-        JPanel bottom =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.CENTER,
-                                0,
-                                0
-                        )
-                );
+        edit.addActionListener(
+                e -> showTableDialog(table)
+        );
+
+        delete.addActionListener(
+                e -> deleteTable(table)
+        );
+
+        statusButton.addActionListener(
+                e -> chooseTableStatus(table)
+        );
+
+        JPanel bottom = new JPanel(new GridLayout(2, 2, 5, 5));
 
         bottom.setOpaque(false);
 
+        bottom.add(statusButton);
         bottom.add(detail);
+        bottom.add(edit);
+        bottom.add(delete);
 
         card.add(
                 bottom,
@@ -1056,14 +991,33 @@ public class TablePanel extends JPanel {
         return button;
     }
 
+        private JButton createTableActionButton(String text, Color color) {
+                JButton button = new JButton(text);
+                button.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                button.setForeground(color);
+                button.setBackground(color == RED
+                                ? RED_LIGHT
+                                : new Color(239, 246, 255));
+                button.setFocusPainted(false);
+                button.setBorder(BorderFactory.createEmptyBorder(6, 9, 6, 9));
+                button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                return button;
+        }
+
     // =========================================================
     // ADD TABLE
     // =========================================================
 
-    private void showAddTableDialog() {
+        private void showAddTableDialog() {
+                showTableDialog(null);
+        }
+
+        private void showTableDialog(TableInfo editingTable) {
 
         JTextField nameField =
                 new JTextField();
+
+                JTextField capacityField = new JTextField("4");
 
         nameField.setPreferredSize(
                 new Dimension(
@@ -1092,11 +1046,21 @@ public class TablePanel extends JPanel {
 
         panel.add(nameField);
 
+                panel.add(Box.createVerticalStrut(8));
+                panel.add(new JLabel("Sức chứa:") );
+                panel.add(Box.createVerticalStrut(8));
+                panel.add(capacityField);
+
+                if (editingTable != null) {
+                        nameField.setText(editingTable.name);
+                        capacityField.setText(String.valueOf(editingTable.capacity));
+                }
+
         int result =
                 JOptionPane.showConfirmDialog(
                         this,
                         panel,
-                        "Thêm bàn mới",
+                        editingTable == null ? "Thêm bàn mới" : "Sửa thông tin bàn",
                         JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.PLAIN_MESSAGE
                 );
@@ -1123,20 +1087,66 @@ public class TablePanel extends JPanel {
                 return;
             }
 
-            int newId =
-                    tables.size() + 1;
+                        int capacity;
+                        try {
+                                capacity = Integer.parseInt(capacityField.getText().trim());
+                                if (capacity <= 0) {
+                                        throw new NumberFormatException();
+                                }
+                        } catch (NumberFormatException exception) {
+                                JOptionPane.showMessageDialog(
+                                                this,
+                                                "Sức chứa phải là số nguyên lớn hơn 0!",
+                                                "Thông báo",
+                                                JOptionPane.WARNING_MESSAGE
+                                );
+                                return;
+                        }
 
-            tables.add(
-                    new TableInfo(
-                            newId,
-                            name,
-                            "TRỐNG"
-                    )
-            );
-
-            loadTables();
+            try {
+                                if (editingTable == null) {
+                                        tableController.addTable(name, capacity);
+                                } else {
+                                        tableController.editTable(editingTable.id, name, capacity);
+                                }
+                loadTables();
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Không thể thêm bàn:\n" + exception.getMessage(),
+                        "Lỗi cơ sở dữ liệu",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         }
     }
+
+        private void deleteTable(TableInfo table) {
+                int result = JOptionPane.showConfirmDialog(
+                                this,
+                                "Bạn có chắc muốn xóa bàn \"" + table.name + "\"?",
+                                "Xác nhận xóa",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE
+                );
+
+                if (result != JOptionPane.YES_OPTION) {
+                        return;
+                }
+
+                try {
+                        tableController.removeTable(table.id);
+                        loadTables();
+                } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(
+                                        this,
+                                        "Không thể xóa bàn. Có thể bàn đã có đơn hàng:\n"
+                                                        + exception.getMessage(),
+                                        "Lỗi cơ sở dữ liệu",
+                                        JOptionPane.ERROR_MESSAGE
+                        );
+                }
+        }
 
     // =========================================================
     // TABLE DETAIL
@@ -1150,6 +1160,9 @@ public class TablePanel extends JPanel {
                 "Tên bàn: "
                         + table.name
                         + "\n\n"
+                        + "Sức chứa: "
+                        + table.capacity
+                        + " người\n"
                         + "Trạng thái: "
                         + table.status;
 
@@ -1160,6 +1173,40 @@ public class TablePanel extends JPanel {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
+
+        private void chooseTableStatus(TableInfo table) {
+                String[] statuses = {"TRỐNG", "ĐANG PHỤC VỤ"};
+                String selectedStatus = (String) JOptionPane.showInputDialog(
+                                this,
+                                "Chọn trạng thái cho " + table.name + ":",
+                                "Cập nhật trạng thái bàn",
+                                JOptionPane.PLAIN_MESSAGE,
+                                null,
+                                statuses,
+                                table.status
+                );
+
+                if (selectedStatus == null || selectedStatus.equals(table.status)) {
+                        return;
+                }
+
+                changeTableStatus(table, "ĐANG PHỤC VỤ".equals(selectedStatus));
+        }
+
+        private void changeTableStatus(TableInfo table, boolean serving) {
+                try {
+                        tableController.setServing(table.id, serving);
+                        table.status = serving ? "ĐANG PHỤC VỤ" : "TRỐNG";
+                        loadTables();
+                } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(
+                                        this,
+                                        "Không thể cập nhật trạng thái bàn:\n" + exception.getMessage(),
+                                        "Lỗi cơ sở dữ liệu",
+                                        JOptionPane.ERROR_MESSAGE
+                        );
+                }
+        }
 
     // =========================================================
     // MODEL DEMO
@@ -1173,15 +1220,20 @@ public class TablePanel extends JPanel {
 
         String status;
 
+        int capacity;
+
         TableInfo(
                 int id,
                 String name,
+                int capacity,
                 String status
         ) {
 
             this.id = id;
 
             this.name = name;
+
+            this.capacity = capacity;
 
             this.status = status;
         }
