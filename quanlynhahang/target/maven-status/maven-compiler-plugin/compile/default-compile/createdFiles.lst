@@ -4,6 +4,7 @@ com\nhahang\view\MainFrame.class
 com\nhahang\view\HomePanel$2.class
 com\nhahang\view\TablePanel$TableInfo.class
 com\nhahang\view\TablePanel$2.class
+com\nhahang\util\ValidationUtil.class
 com\nhahang\view\HomePanel$RoundedPanel.class
 com\nhahang\view\ProductPanel$2.class
 com\nhahang\view\MainFrame$1.class
