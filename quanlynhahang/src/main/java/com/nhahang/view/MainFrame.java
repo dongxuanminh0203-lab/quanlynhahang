@@ -663,7 +663,7 @@ public class MainFrame extends JFrame {
                     );
 
                     showPanel(
-                            new OrderPanel()
+                            new OrderPanel(currentUser)
                     );
                 }
         );
