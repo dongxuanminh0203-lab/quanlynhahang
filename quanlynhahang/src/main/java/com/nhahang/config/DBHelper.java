@@ -14,7 +14,7 @@ public class DBHelper {
 
     private static final String USER = "root";
 
-    private static final String PASSWORD = "123456";
+    private static final String PASSWORD = "Root#123456";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
