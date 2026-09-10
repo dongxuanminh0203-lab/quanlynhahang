@@ -1109,7 +1109,7 @@ public class HomePanel extends JPanel {
                         ) {
 
                             frame.showPanel(
-                                    new OrderPanel()
+                                    new OrderPanel(currentUser)
                             );
 
                         } else if (
