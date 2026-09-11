@@ -9,6 +9,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -387,9 +388,13 @@ public class EmployeePanel extends JPanel {
                         new Object[]{
                                 "Mã NV",
                                 "Họ tên",
+                                "Giới tính",
                                 "Số điện thoại",
+                                "Email",
+                                "Địa chỉ",
                                 "Chức vụ",
-                                "Trạng thái"
+                                "Trạng thái",
+                                "Ngày tạo"
                         },
                         0
                 ) {
@@ -616,6 +621,12 @@ public class EmployeePanel extends JPanel {
                             .contains(keyword)
                             || employee.getPhone()
                             .toLowerCase()
+                            .contains(keyword)
+                            || valueOrEmpty(employee.getEmail())
+                            .toLowerCase()
+                            .contains(keyword)
+                            || valueOrEmpty(employee.getAddress())
+                            .toLowerCase()
                             .contains(keyword);
 
             if (!matches) {
@@ -626,11 +637,15 @@ public class EmployeePanel extends JPanel {
                     new Object[]{
                             employee.getId(),
                             employee.getName(),
+                            valueOrEmpty(employee.getGender()),
                             employee.getPhone(),
+                            valueOrEmpty(employee.getEmail()),
+                            valueOrEmpty(employee.getAddress()),
                             employee.getPosition(),
                             employee.isActive()
                                     ? "Đang làm"
-                                    : "Nghỉ"
+                                    : "Nghỉ",
+                            formatCreatedAt(employee.getCreatedAt())
                     }
             );
 
@@ -659,7 +674,18 @@ public class EmployeePanel extends JPanel {
         JTextField nameField =
                 new JTextField();
 
+        JComboBox<String> genderField =
+                new JComboBox<>(
+                        new String[]{"", "Nam", "Nữ", "Khác"}
+                );
+
         JTextField phoneField =
+                new JTextField();
+
+        JTextField emailField =
+                new JTextField();
+
+        JTextField addressField =
                 new JTextField();
 
         JTextField positionField =
@@ -682,8 +708,20 @@ public class EmployeePanel extends JPanel {
                     employee.getName()
             );
 
+            genderField.setSelectedItem(
+                    valueOrEmpty(employee.getGender())
+            );
+
             phoneField.setText(
                     employee.getPhone()
+            );
+
+            emailField.setText(
+                    valueOrEmpty(employee.getEmail())
+            );
+
+            addressField.setText(
+                    valueOrEmpty(employee.getAddress())
             );
 
             positionField.setText(
@@ -737,11 +775,35 @@ public class EmployeePanel extends JPanel {
         );
 
         form.add(
+                new JLabel("Giới tính:")
+        );
+
+        form.add(
+                genderField
+        );
+
+        form.add(
                 new JLabel("Số điện thoại:")
         );
 
         form.add(
                 phoneField
+        );
+
+        form.add(
+                new JLabel("Email:")
+        );
+
+        form.add(
+                emailField
+        );
+
+        form.add(
+                new JLabel("Địa chỉ:")
+        );
+
+        form.add(
+                addressField
         );
 
         form.add(
@@ -797,6 +859,21 @@ public class EmployeePanel extends JPanel {
                             .getText()
                             .trim();
 
+            String gender =
+                    String.valueOf(
+                            genderField.getSelectedItem()
+                    ).trim();
+
+            String email =
+                    emailField
+                            .getText()
+                            .trim();
+
+            String address =
+                    addressField
+                            .getText()
+                            .trim();
+
             String position =
                     positionField
                             .getText()
@@ -806,9 +883,13 @@ public class EmployeePanel extends JPanel {
                     new EmployeeDAO.EmployeeRecord(
                             id,
                             name,
+                            gender,
                             phone,
+                            email,
+                            address,
                             position,
-                            statusBox.isSelected()
+                            statusBox.isSelected(),
+                            null
                     );
 
             saveEmployee(
@@ -1116,4 +1197,18 @@ public class EmployeePanel extends JPanel {
                 ? cause.getMessage()
                 : cause.toString();
     }
+
+        private String valueOrEmpty(String value) {
+                return value == null ? "" : value;
+        }
+
+        private String formatCreatedAt(java.sql.Timestamp createdAt) {
+                if (createdAt == null) {
+                        return "";
+                }
+
+                return new SimpleDateFormat(
+                                "dd/MM/yyyy HH:mm"
+                ).format(createdAt);
+        }
 }
