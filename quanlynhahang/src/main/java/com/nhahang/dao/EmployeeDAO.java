@@ -19,7 +19,7 @@ public class EmployeeDAO {
 
         String sql =
                 "SELECT employee_id, employee_name, phone, " +
-                "position, salary, status " +
+                "position, status " +
                 "FROM employees " +
                 "ORDER BY employee_id";
 
@@ -45,7 +45,6 @@ public class EmployeeDAO {
                                 resultSet.getString("employee_name"),
                                 resultSet.getString("phone"),
                                 resultSet.getString("position"),
-                                resultSet.getDouble("salary"),
                                 resultSet.getBoolean("status")
                         )
                 );
@@ -65,8 +64,8 @@ public class EmployeeDAO {
         String sql =
                 "INSERT INTO employees " +
                 "(employee_id, employee_name, phone, " +
-                "position, salary, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "position, status) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (
                 Connection connection =
@@ -96,13 +95,8 @@ public class EmployeeDAO {
                     employee.getPosition()
             );
 
-            statement.setDouble(
-                    5,
-                    employee.getSalary()
-            );
-
             statement.setBoolean(
-                    6,
+                    5,
                     employee.isActive()
             );
 
@@ -122,7 +116,6 @@ public class EmployeeDAO {
                 "employee_name = ?, " +
                 "phone = ?, " +
                 "position = ?, " +
-                "salary = ?, " +
                 "status = ? " +
                 "WHERE employee_id = ?";
 
@@ -149,18 +142,13 @@ public class EmployeeDAO {
                     employee.getPosition()
             );
 
-            statement.setDouble(
-                    4,
-                    employee.getSalary()
-            );
-
             statement.setBoolean(
-                    5,
+                    4,
                     employee.isActive()
             );
 
             statement.setInt(
-                    6,
+                    5,
                     employee.getId()
             );
 
@@ -206,7 +194,6 @@ public class EmployeeDAO {
         private final String name;
         private final String phone;
         private final String position;
-        private final double salary;
         private final boolean active;
 
         public EmployeeRecord(
@@ -214,7 +201,6 @@ public class EmployeeDAO {
                 String name,
                 String phone,
                 String position,
-                double salary,
                 boolean active
         ) {
 
@@ -222,7 +208,6 @@ public class EmployeeDAO {
             this.name = name;
             this.phone = phone;
             this.position = position;
-            this.salary = salary;
             this.active = active;
         }
 
@@ -240,10 +225,6 @@ public class EmployeeDAO {
 
         public String getPosition() {
             return position;
-        }
-
-        public double getSalary() {
-            return salary;
         }
 
         public boolean isActive() {

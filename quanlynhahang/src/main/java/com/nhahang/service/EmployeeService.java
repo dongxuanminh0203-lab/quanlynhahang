@@ -77,10 +77,5 @@ public class EmployeeService {
             );
         }
 
-        if (employee.getSalary() < 0) {
-            throw new IllegalArgumentException(
-                    "Lương không được âm."
-            );
-        }
     }
 }

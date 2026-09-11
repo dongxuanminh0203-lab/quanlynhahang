@@ -9,10 +9,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class EmployeePanel extends JPanel {
 
@@ -53,11 +51,6 @@ public class EmployeePanel extends JPanel {
 
     private final List<EmployeeDAO.EmployeeRecord>
             employees = new ArrayList<>();
-
-    private final NumberFormat currency =
-            NumberFormat.getInstance(
-                    new Locale("vi", "VN")
-            );
 
     // =========================
     // COMPONENT
@@ -396,7 +389,6 @@ public class EmployeePanel extends JPanel {
                                 "Họ tên",
                                 "Số điện thoại",
                                 "Chức vụ",
-                                "Lương",
                                 "Trạng thái"
                         },
                         0
@@ -636,9 +628,6 @@ public class EmployeePanel extends JPanel {
                             employee.getName(),
                             employee.getPhone(),
                             employee.getPosition(),
-                            formatMoney(
-                                    employee.getSalary()
-                            ),
                             employee.isActive()
                                     ? "Đang làm"
                                     : "Nghỉ"
@@ -676,9 +665,6 @@ public class EmployeePanel extends JPanel {
         JTextField positionField =
                 new JTextField();
 
-        JTextField salaryField =
-                new JTextField();
-
         JCheckBox statusBox =
                 new JCheckBox(
                         "Đang làm việc"
@@ -702,12 +688,6 @@ public class EmployeePanel extends JPanel {
 
             positionField.setText(
                     employee.getPosition()
-            );
-
-            salaryField.setText(
-                    String.valueOf(
-                            employee.getSalary()
-                    )
             );
 
             statusBox.setSelected(
@@ -773,14 +753,6 @@ public class EmployeePanel extends JPanel {
         );
 
         form.add(
-                new JLabel("Lương:")
-        );
-
-        form.add(
-                salaryField
-        );
-
-        form.add(
                 new JLabel("Trạng thái:")
         );
 
@@ -830,20 +802,12 @@ public class EmployeePanel extends JPanel {
                             .getText()
                             .trim();
 
-            double salary =
-                    Double.parseDouble(
-                            salaryField
-                                    .getText()
-                                    .trim()
-                    );
-
             EmployeeDAO.EmployeeRecord data =
                     new EmployeeDAO.EmployeeRecord(
                             id,
                             name,
                             phone,
                             position,
-                            salary,
                             statusBox.isSelected()
                     );
 
@@ -856,9 +820,7 @@ public class EmployeePanel extends JPanel {
                 NumberFormatException e
         ) {
 
-            showError(
-                    "Mã nhân viên và lương phải là số."
-            );
+            showError("Mã nhân viên phải là số.");
         }
     }
 
@@ -1076,18 +1038,6 @@ public class EmployeePanel extends JPanel {
             }
 
         }.execute();
-    }
-
-    // =========================================================
-    // FORMAT
-    // =========================================================
-
-    private String formatMoney(
-            double value
-    ) {
-
-        return currency.format(value)
-                + " đ";
     }
 
     // =========================================================
