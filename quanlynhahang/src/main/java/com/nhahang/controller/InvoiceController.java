@@ -26,12 +26,16 @@ public class InvoiceController {
 
     public void payInvoice(
             int orderId,
-            int tableId
+            int tableId,
+            double amount,
+            String paymentMethod
     ) throws SQLException {
 
         invoiceService.pay(
                 orderId,
-                tableId
+                tableId,
+                amount,
+                paymentMethod
         );
     }
 }

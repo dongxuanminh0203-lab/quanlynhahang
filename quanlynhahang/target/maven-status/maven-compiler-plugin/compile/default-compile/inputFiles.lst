@@ -2,12 +2,14 @@ C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\c
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\EmployeeController.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\InvoiceController.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\OrderController.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\PaymentController.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\ProductController.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\controller\TableController.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\DashboardDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\EmployeeDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\InvoiceDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\OrderDAO.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\PaymentDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\ProductDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\TableDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\UserDAO.java
@@ -16,6 +18,7 @@ C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\m
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\EmployeeService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\InvoiceService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\OrderService.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\PaymentService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\ProductService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\TableService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\util\ValidationUtil.java
@@ -26,6 +29,7 @@ C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\v
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\LoginFrame.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\MainFrame.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\OrderPanel.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\PaymentPanel.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\ProductPanel.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\StatisticsPanel.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\view\TablePanel.java

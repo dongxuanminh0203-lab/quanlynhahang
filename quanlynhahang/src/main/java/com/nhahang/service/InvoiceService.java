@@ -31,7 +31,9 @@ public class InvoiceService {
 
     public void pay(
             int orderId,
-            int tableId
+            int tableId,
+            double amount,
+            String paymentMethod
     ) throws SQLException {
 
         if (orderId <= 0) {
@@ -46,9 +48,23 @@ public class InvoiceService {
             );
         }
 
+        if (amount < 0) {
+            throw new IllegalArgumentException(
+                    "Số tiền thanh toán không hợp lệ"
+            );
+        }
+
+        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Vui lòng chọn phương thức thanh toán"
+            );
+        }
+
         invoiceDAO.payInvoice(
                 orderId,
-                tableId
+                tableId,
+                amount,
+                paymentMethod
         );
     }
 }

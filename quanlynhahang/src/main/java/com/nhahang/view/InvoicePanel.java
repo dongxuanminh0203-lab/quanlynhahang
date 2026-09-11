@@ -756,14 +756,11 @@ public class InvoicePanel extends JPanel {
         int confirm =
                 JOptionPane.showConfirmDialog(
                         this,
-                        "Xác nhận thanh toán hóa đơn #"
-                                + orderId
-                                + "\n"
-                                + "Bàn: "
-                                + tableName
-                                + "\n"
-                                + "Tổng tiền: "
-                                + money(amount),
+                        createPaymentForm(
+                                orderId,
+                                tableName,
+                                amount
+                        ),
                         "Xác nhận thanh toán",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE
@@ -775,6 +772,9 @@ public class InvoicePanel extends JPanel {
         ) {
             return;
         }
+
+        String paymentMethod =
+                selectedPaymentMethod;
 
         // Lấy table_id từ dữ liệu hóa đơn.
         // Cột table_id không hiển thị trên JTable
@@ -804,7 +804,9 @@ public class InvoicePanel extends JPanel {
 
                         controller.payInvoice(
                                 invoice.getOrderId(),
-                                invoice.getTableId()
+                                invoice.getTableId(),
+                                amount,
+                                paymentMethod
                         );
 
                         break;
@@ -908,6 +910,34 @@ public class InvoicePanel extends JPanel {
 
             return 0;
         }
+    }
+
+    private String selectedPaymentMethod = "Tiền mặt";
+
+    private JPanel createPaymentForm(
+            int orderId,
+            String tableName,
+            double amount
+    ) {
+        JPanel form = new JPanel(new GridLayout(0, 2, 10, 10));
+        JComboBox<String> methodBox = new JComboBox<>(
+                new String[]{"Tiền mặt", "Chuyển khoản", "Thẻ"}
+        );
+
+        form.add(new JLabel("Hóa đơn #" + orderId));
+        form.add(new JLabel("Bàn: " + tableName));
+        form.add(new JLabel("Tổng tiền:"));
+        form.add(new JLabel(money(amount)));
+        form.add(new JLabel("Phương thức:"));
+        form.add(methodBox);
+
+        methodBox.addActionListener(e ->
+                selectedPaymentMethod =
+                        String.valueOf(methodBox.getSelectedItem())
+        );
+
+        selectedPaymentMethod = "Tiền mặt";
+        return form;
     }
 
     // =========================================================

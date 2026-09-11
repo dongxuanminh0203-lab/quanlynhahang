@@ -402,6 +402,12 @@ public class MainFrame extends JFrame {
                         "Hóa đơn"
                 );
 
+        JButton btnPayment =
+                createMenuButton(
+                        "₫",
+                        "Thanh toán"
+                );
+
         JButton btnEmployee =
                 createMenuButton(
                         "♙",
@@ -443,6 +449,11 @@ public class MainFrame extends JFrame {
         addMenu(
                 top,
                 btnInvoice
+        );
+
+        addMenu(
+                top,
+                btnPayment
         );
 
         addMenu(
@@ -677,6 +688,19 @@ public class MainFrame extends JFrame {
 
                     showPanel(
                             new InvoicePanel()
+                    );
+                }
+        );
+
+        btnPayment.addActionListener(
+                e -> {
+
+                    setSelectedButton(
+                            btnPayment
+                    );
+
+                    showPanel(
+                            new PaymentPanel()
                     );
                 }
         );

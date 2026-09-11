@@ -84,7 +84,12 @@ public class InvoiceDAO {
     }
 
     // Thanh toán hóa đơn
-    public void payInvoice(int orderId, int tableId)
+        public void payInvoice(
+            int orderId,
+            int tableId,
+            double amount,
+            String paymentMethod
+        )
             throws SQLException {
 
         String updateOrder =
@@ -96,6 +101,11 @@ public class InvoiceDAO {
                 "UPDATE restaurant_tables " +
                 "SET status = 'EMPTY' " +
                 "WHERE table_id = ?";
+
+            String insertPayment =
+                "INSERT INTO payments " +
+                "(order_id, amount, payment_method) " +
+                "VALUES (?, ?, ?)";
 
         try (Connection conn = DBHelper.getConnection()) {
 
@@ -117,6 +127,15 @@ public class InvoiceDAO {
                     throw new SQLException(
                             "Hóa đơn không tồn tại hoặc đã thanh toán."
                     );
+                }
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(insertPayment)) {
+
+                    ps.setInt(1, orderId);
+                    ps.setDouble(2, amount);
+                    ps.setString(3, paymentMethod);
+                    ps.executeUpdate();
                 }
 
                 try (PreparedStatement ps =
