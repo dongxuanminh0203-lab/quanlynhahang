@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
@@ -229,7 +230,7 @@ public class ProductPanel extends JPanel {
         productGrid.setOpaque(false);
 
         productGrid.setLayout(
-                new GridLayout(0, 4, 18, 18)
+                new GridBagLayout()
         );
 
         JScrollPane scrollPane = new JScrollPane(productGrid);
@@ -285,6 +286,10 @@ public class ProductPanel extends JPanel {
 
         productGrid.removeAll();
 
+        productGrid.setLayout(
+                new GridBagLayout()
+        );
+
         String keyword =
                 searchField == null
                         ? ""
@@ -314,8 +319,20 @@ public class ProductPanel extends JPanel {
 
             if (matchName && matchCategory) {
 
+                GridBagConstraints constraints =
+                        new GridBagConstraints();
+
+                constraints.gridx = count % 4;
+                constraints.gridy = count / 4;
+                constraints.weightx = 1;
+                constraints.weighty = 0;
+                constraints.fill = GridBagConstraints.HORIZONTAL;
+                constraints.anchor = GridBagConstraints.NORTH;
+                constraints.insets = new Insets(0, 0, 18, 18);
+
                 productGrid.add(
-                        createProductCard(product)
+                        createProductCard(product),
+                        constraints
                 );
 
                 count++;
@@ -387,6 +404,18 @@ public class ProductPanel extends JPanel {
 
         JPanel card = new JPanel(new BorderLayout());
 
+        card.setPreferredSize(
+                new Dimension(250, 315)
+        );
+
+        card.setMinimumSize(
+                new Dimension(180, 315)
+        );
+
+        card.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 315)
+        );
+
         card.setBackground(WHITE);
         card.setBorder(
                 new LineBorder(BORDER, 1, true)
@@ -401,7 +430,7 @@ public class ProductPanel extends JPanel {
         );
 
         imagePanel.setPreferredSize(
-                new Dimension(0, 175)
+                new Dimension(0, 145)
         );
 
         card.add(
@@ -420,7 +449,7 @@ public class ProductPanel extends JPanel {
         );
 
         info.setBorder(
-                new EmptyBorder(14, 15, 15, 15)
+                new EmptyBorder(10, 12, 10, 12)
         );
 
         JLabel name = new JLabel(product.name);
@@ -497,11 +526,11 @@ public class ProductPanel extends JPanel {
         buttons.add(deleteButton);
 
         info.add(name);
-        info.add(Box.createVerticalStrut(4));
+        info.add(Box.createVerticalStrut(2));
         info.add(category);
-        info.add(Box.createVerticalStrut(12));
+        info.add(Box.createVerticalStrut(6));
         info.add(priceStatus);
-        info.add(Box.createVerticalStrut(14));
+        info.add(Box.createVerticalStrut(8));
         info.add(buttons);
 
         card.add(
@@ -1085,19 +1114,34 @@ public class ProductPanel extends JPanel {
                     JFileChooser chooser =
                             new JFileChooser();
 
+                    File downloadsFolder =
+                            new File(
+                                    System.getProperty("user.home"),
+                                    "Downloads"
+                            );
+
+                    if (downloadsFolder.isDirectory()) {
+                        chooser.setCurrentDirectory(downloadsFolder);
+                    }
+
                     chooser.setDialogTitle(
                             "Chọn ảnh món ăn"
                     );
 
                     chooser.setFileFilter(
                             new javax.swing.filechooser.FileNameExtensionFilter(
-                                    "Ảnh món ăn (*.jpg, *.jpeg, *.png, *.gif)",
+                                    "Ảnh món ăn (*.jpg, *.jpeg, *.png, *.gif, *.bmp, *.jfif, *.webp)",
                                     "jpg",
                                     "jpeg",
                                     "png",
-                                    "gif"
+                                    "gif",
+                                    "bmp",
+                                    "jfif",
+                                    "webp"
                             )
                     );
+
+                    chooser.setAcceptAllFileFilterUsed(true);
 
                     int result =
                             chooser.showOpenDialog(
@@ -1109,6 +1153,16 @@ public class ProductPanel extends JPanel {
 
                         File selectedFile =
                                 chooser.getSelectedFile();
+
+                        if (!isImageFile(selectedFile)) {
+                            JOptionPane.showMessageDialog(
+                                    dialog,
+                                    "Vui lòng chọn tệp ảnh hợp lệ.",
+                                    "Tệp không hợp lệ",
+                                    JOptionPane.WARNING_MESSAGE
+                            );
+                            return;
+                        }
 
                         try {
 
@@ -1253,18 +1307,7 @@ public class ProductPanel extends JPanel {
 
                     try {
 
-                        price =
-                                Double.parseDouble(
-                                        priceText
-                                                .replace(
-                                                        ",",
-                                                        ""
-                                                )
-                                                .replace(
-                                                        ".",
-                                                        ""
-                                                )
-                                );
+                        price = parsePrice(priceText);
 
                     } catch (NumberFormatException ex) {
 
@@ -1396,6 +1439,20 @@ public class ProductPanel extends JPanel {
                     originalName.substring(dot);
         }
 
+                boolean webp = extension.equalsIgnoreCase(".webp");
+
+                if (webp) {
+                        BufferedImage image = ImageIO.read(source);
+
+                        if (image == null) {
+                                throw new IOException(
+                                                "Không thể đọc ảnh WebP đã chọn."
+                                );
+                        }
+
+                        extension = ".png";
+                }
+
         String fileName =
                 "food_"
                         + System.currentTimeMillis()
@@ -1407,14 +1464,66 @@ public class ProductPanel extends JPanel {
                         fileName
                 );
 
-        Files.copy(
-                source.toPath(),
-                destination.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-        );
+        if (webp) {
+            ImageIO.write(
+                    ImageIO.read(source),
+                    "png",
+                    destination
+            );
+        } else {
+            Files.copy(
+                    source.toPath(),
+                    destination.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        }
 
         return destination.getAbsolutePath();
     }
+
+        private boolean isImageFile(File file) {
+                if (file == null || !file.isFile()) {
+                        return false;
+                }
+
+                String name = file.getName().toLowerCase(Locale.ROOT);
+                return name.endsWith(".jpg")
+                                || name.endsWith(".jpeg")
+                                || name.endsWith(".png")
+                                || name.endsWith(".gif")
+                                || name.endsWith(".bmp")
+                                || name.endsWith(".jfif")
+                                || name.endsWith(".webp");
+        }
+
+        private double parsePrice(String value) {
+                String text = value.trim();
+
+                try {
+                        return Double.parseDouble(text);
+                } catch (NumberFormatException ignored) {
+                        // Try Vietnamese thousands separators below.
+                }
+
+                if (text.contains(",") && text.contains(".")) {
+                        if (text.lastIndexOf(',') > text.lastIndexOf('.')) {
+                                text = text.replace(".", "").replace(',', '.');
+                        } else {
+                                text = text.replace(",", "");
+                        }
+                } else if (text.contains(",")) {
+                        text = text.replace(',', '.');
+                } else {
+                        int separator = text.indexOf('.');
+                        int decimals = text.length() - separator - 1;
+
+                        if (separator >= 0 && decimals == 3) {
+                                text = text.replace(".", "");
+                        }
+                }
+
+                return Double.parseDouble(text);
+        }
 
     // ============================================================
     // DELETE
