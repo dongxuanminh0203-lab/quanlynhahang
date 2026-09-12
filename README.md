@@ -214,9 +214,3 @@ quanlynhahang/
 - **Cơ Sở Dữ Liệu**: MySQL/SQLite (tùy cấu hình)
 - **Quản Lý Phụ Thuộc**: Maven (nếu có)
 
-
-
-
-
-</div>
->>>>>>> 19ab019a613d3edf059acd4ee16a7b2f6fdbbcbe
