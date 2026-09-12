@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Phần mềm quản lý nhà hàng
 
 ## Giới thiệu
@@ -215,39 +214,9 @@ quanlynhahang/
 - **Cơ Sở Dữ Liệu**: MySQL/SQLite (tùy cấu hình)
 - **Quản Lý Phụ Thuộc**: Maven (nếu có)
 
----
 
-## 🤝 Đóng Góp
 
-Chúng tôi chào đón mọi đóng góp! Để đóng góp:
 
-1. Fork repository
-2. Tạo branch tính năng (`git checkout -b feature/AmazingFeature`)
-3. Commit thay đổi (`git commit -m 'Add some AmazingFeature'`)
-4. Push đến branch (`git push origin feature/AmazingFeature`)
-5. Mở Pull Request
-
----
-
-## 📝 Ghi Chú
-
-- Đây là fork từ repository [minhxuan2325-hub/quanlynhahang-1](https://github.com/minhxuan2325-hub/quanlynhahang-1)
-- Dự án được phát triển để mục đích học tập và thực hành
-
----
-
-## 📞 Liên Hệ
-
-- **Tác Giả**: [dongxuanminh0203-lab](https://github.com/dongxuanminh0203-lab)
-- **Email**: Liên hệ qua GitHub
-
----
-
-<div align="center">
-
-⭐ Nếu dự án này hữu ích, hãy cho chúng tôi một star!
-
-Cảm ơn đã sử dụng **Quản Lý Nhà Hàng**!
 
 </div>
 >>>>>>> 19ab019a613d3edf059acd4ee16a7b2f6fdbbcbe
