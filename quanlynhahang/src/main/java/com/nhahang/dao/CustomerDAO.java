@@ -15,11 +15,12 @@ public class CustomerDAO {
 
     private void ensureTableExists(Connection connection) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS customers ("
-                + "customer_id INT PRIMARY KEY, "
+                + "customer_id INT AUTO_INCREMENT PRIMARY KEY, "
                 + "customer_name VARCHAR(100) NOT NULL, "
                 + "phone VARCHAR(20), "
                 + "email VARCHAR(100), "
                 + "address VARCHAR(255), "
+                + "points INT DEFAULT 0, "
                 + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + ")";
 
@@ -29,7 +30,7 @@ public class CustomerDAO {
     }
 
     public List<CustomerRecord> findAll() throws SQLException {
-        String sql = "SELECT customer_id, customer_name, phone, email, address, created_at "
+        String sql = "SELECT customer_id, customer_name, phone, email, address, points, created_at "
                 + "FROM customers ORDER BY customer_id";
 
         List<CustomerRecord> list = new ArrayList<>();
@@ -47,6 +48,7 @@ public class CustomerDAO {
                             resultSet.getString("phone"),
                             resultSet.getString("email"),
                             resultSet.getString("address"),
+                                resultSet.getInt("points"),
                             resultSet.getTimestamp("created_at")
                     ));
                 }
@@ -57,8 +59,8 @@ public class CustomerDAO {
     }
 
     public void insert(CustomerRecord customer) throws SQLException {
-        String sql = "INSERT INTO customers (customer_id, customer_name, phone, email, address) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customers (customer_id, customer_name, phone, email, address, points) "
+            + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DBHelper.getConnection()) {
             ensureTableExists(connection);
@@ -69,13 +71,14 @@ public class CustomerDAO {
                 statement.setString(3, customer.getPhone());
                 statement.setString(4, customer.getEmail());
                 statement.setString(5, customer.getAddress());
+                statement.setInt(6, customer.getPoints());
                 statement.executeUpdate();
             }
         }
     }
 
     public void update(CustomerRecord customer) throws SQLException {
-        String sql = "UPDATE customers SET customer_name = ?, phone = ?, email = ?, address = ? "
+        String sql = "UPDATE customers SET customer_name = ?, phone = ?, email = ?, address = ?, points = ? "
                 + "WHERE customer_id = ?";
 
         try (Connection connection = DBHelper.getConnection()) {
@@ -86,7 +89,8 @@ public class CustomerDAO {
                 statement.setString(2, customer.getPhone());
                 statement.setString(3, customer.getEmail());
                 statement.setString(4, customer.getAddress());
-                statement.setInt(5, customer.getId());
+                statement.setInt(5, customer.getPoints());
+                statement.setInt(6, customer.getId());
                 statement.executeUpdate();
             }
         }
@@ -111,14 +115,16 @@ public class CustomerDAO {
         private final String phone;
         private final String email;
         private final String address;
+        private final int points;
         private final Timestamp createdAt;
 
-        public CustomerRecord(int id, String name, String phone, String email, String address, Timestamp createdAt) {
+        public CustomerRecord(int id, String name, String phone, String email, String address, int points, Timestamp createdAt) {
             this.id = id;
             this.name = name;
             this.phone = phone;
             this.email = email;
             this.address = address;
+            this.points = points;
             this.createdAt = createdAt;
         }
 
@@ -140,6 +146,10 @@ public class CustomerDAO {
 
         public String getAddress() {
             return address;
+        }
+
+        public int getPoints() {
+            return points;
         }
 
         public Timestamp getCreatedAt() {

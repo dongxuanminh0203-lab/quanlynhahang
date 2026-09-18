@@ -133,6 +133,7 @@ public class CustomerPanel extends JPanel {
                 "Số điện thoại",
                 "Email",
                 "Địa chỉ",
+                "Điểm",
                 "Ngày tạo"
         }, 0) {
             @Override
@@ -227,6 +228,7 @@ public class CustomerPanel extends JPanel {
                     valueOrEmpty(customer.getPhone()),
                     valueOrEmpty(customer.getEmail()),
                     valueOrEmpty(customer.getAddress()),
+                    customer.getPoints(),
                     formatCreatedAt(customer.getCreatedAt())
             });
 
@@ -244,6 +246,7 @@ public class CustomerPanel extends JPanel {
         JTextField phoneField = new JTextField();
         JTextField emailField = new JTextField();
         JTextField addressField = new JTextField();
+        JTextField pointsField = new JTextField();
 
         if (editing) {
             idField.setText(String.valueOf(customer.getId()));
@@ -251,6 +254,7 @@ public class CustomerPanel extends JPanel {
             phoneField.setText(valueOrEmpty(customer.getPhone()));
             emailField.setText(valueOrEmpty(customer.getEmail()));
             addressField.setText(valueOrEmpty(customer.getAddress()));
+            pointsField.setText(String.valueOf(customer.getPoints()));
             idField.setEnabled(false);
         }
 
@@ -267,6 +271,8 @@ public class CustomerPanel extends JPanel {
         form.add(emailField);
         form.add(new JLabel("Địa chỉ:"));
         form.add(addressField);
+        form.add(new JLabel("Điểm tích lũy:"));
+        form.add(pointsField);
 
         int result = JOptionPane.showConfirmDialog(
                 this,
@@ -286,6 +292,12 @@ public class CustomerPanel extends JPanel {
             String phone = phoneField.getText().trim();
             String email = emailField.getText().trim();
             String address = addressField.getText().trim();
+            int points = Integer.parseInt(pointsField.getText().trim());
+
+            if (points < 0) {
+                showError("Điểm tích lũy không được âm.");
+                return;
+            }
 
             CustomerDAO.CustomerRecord data = new CustomerDAO.CustomerRecord(
                     id,
@@ -293,12 +305,13 @@ public class CustomerPanel extends JPanel {
                     phone,
                     email,
                     address,
+                        points,
                     null
             );
 
             saveCustomer(data, editing);
         } catch (NumberFormatException e) {
-            showError("Mã khách hàng phải là số.");
+            showError("Mã khách hàng và điểm tích lũy phải là số.");
         }
     }
 

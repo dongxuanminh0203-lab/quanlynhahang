@@ -414,6 +414,12 @@ public class MainFrame extends JFrame {
                         "Nhân viên"
                 );
 
+        JButton btnUser =
+                createMenuButton(
+                        "♙",
+                        "Tài khoản"
+                );
+
         JButton btnCustomer =
                 createMenuButton(
                         "♙",
@@ -460,6 +466,13 @@ public class MainFrame extends JFrame {
                 top,
                 btnEmployee
         );
+
+        if ("ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+            addMenu(
+                    top,
+                    btnUser
+            );
+        }
 
         addMenu(
                 top,
@@ -714,6 +727,18 @@ public class MainFrame extends JFrame {
 
                     showPanel(
                             new EmployeePanel()
+                    );
+                }
+        );
+
+        btnUser.addActionListener(
+                e -> {
+                    setSelectedButton(
+                            btnUser
+                    );
+
+                    showPanel(
+                            new UserPanel()
                     );
                 }
         );
