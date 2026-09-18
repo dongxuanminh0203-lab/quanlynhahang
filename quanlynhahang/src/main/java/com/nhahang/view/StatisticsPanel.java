@@ -5,9 +5,15 @@ import com.nhahang.dao.DashboardDAO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,6 +31,7 @@ public class StatisticsPanel extends JPanel {
 
     private final DashboardDAO dashboardDAO = new DashboardDAO();
     private final NumberFormat currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public StatisticsPanel() {
         setLayout(new BorderLayout());
@@ -34,10 +41,14 @@ public class StatisticsPanel extends JPanel {
     }
 
     private void loadStatistics() {
+        loadStatistics(null, null);
+    }
+
+    private void loadStatistics(LocalDate fromDate, LocalDate toDate) {
         new SwingWorker<DashboardDAO.DashboardStats, Void>() {
             @Override
             protected DashboardDAO.DashboardStats doInBackground() throws Exception {
-                return dashboardDAO.getStatistics();
+                return dashboardDAO.getStatistics(fromDate, toDate);
             }
 
             @Override
@@ -45,7 +56,7 @@ public class StatisticsPanel extends JPanel {
                 try {
                     DashboardDAO.DashboardStats stats = get();
                     removeAll();
-                    add(createContent(stats), BorderLayout.CENTER);
+                    add(createContent(stats, fromDate, toDate), BorderLayout.CENTER);
                     revalidate();
                     repaint();
                 } catch (Exception e) {
@@ -59,7 +70,7 @@ public class StatisticsPanel extends JPanel {
         }.execute();
     }
 
-    private JPanel createContent(DashboardDAO.DashboardStats stats) {
+    private JPanel createContent(DashboardDAO.DashboardStats stats, LocalDate fromDate, LocalDate toDate) {
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(BACKGROUND);
@@ -84,6 +95,7 @@ public class StatisticsPanel extends JPanel {
         titlePanel.add(subtitle);
 
         header.add(titlePanel, BorderLayout.WEST);
+        header.add(createFilterPanel(fromDate, toDate), BorderLayout.EAST);
         content.add(header);
         content.add(Box.createVerticalStrut(24));
 
@@ -98,11 +110,6 @@ public class StatisticsPanel extends JPanel {
 
         content.add(statGrid);
         content.add(Box.createVerticalStrut(24));
-
-        JPanel chartPanel = createRevenueChartCard(stats);
-        chartPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        content.add(chartPanel);
-        content.add(Box.createVerticalStrut(20));
 
         JPanel bottom = new JPanel(new GridLayout(1, 2, 20, 0));
         bottom.setOpaque(false);
@@ -125,45 +132,187 @@ public class StatisticsPanel extends JPanel {
         return content;
     }
 
-    private JPanel createRevenueChartCard(DashboardDAO.DashboardStats stats) {
-        JPanel card = new JPanel(new BorderLayout(12, 0));
-        card.setBackground(WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER),
-                new EmptyBorder(18, 18, 18, 18)
-        ));
+    private JPanel createFilterPanel(LocalDate fromDate, LocalDate toDate) {
+        JTextField fromField = createDateField();
+        JTextField toField = createDateField();
+        JButton filterButton = new JButton("Lọc");
+        JButton clearButton = new JButton("Xóa");
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
+        fromField.setToolTipText("Nhập ngày bắt đầu, ví dụ 02092026");
+        toField.setToolTipText("Nhập ngày kết thúc, ví dụ 03092026");
+        if (fromDate != null) {
+            fromField.setText(fromDate.format(dateFormatter));
+        }
+        if (toDate != null) {
+            toField.setText(toDate.format(dateFormatter));
+        }
+        filterButton.setFocusable(false);
+        clearButton.setFocusable(false);
 
-        JLabel title = new JLabel("Doanh thu");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        title.setForeground(TEXT);
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        filterPanel.setOpaque(false);
+        filterPanel.add(new JLabel("Từ ngày"));
+        filterPanel.add(fromField);
+        filterPanel.add(new JLabel("Đến ngày"));
+        filterPanel.add(toField);
+        filterPanel.add(filterButton);
+        filterPanel.add(clearButton);
 
-        String[] modeOptions = {"Theo ngày", "Theo tháng"};
-        JComboBox<String> modeBox = new JComboBox<>(modeOptions);
-        modeBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        modeBox.setFocusable(false);
-
-        JPanel chartHolder = new JPanel(new BorderLayout());
-        chartHolder.setOpaque(false);
-
-        RevenueChartPanel chart = new RevenueChartPanel(stats.getRevenueByDay());
-        chartHolder.add(chart, BorderLayout.CENTER);
-
-        modeBox.addActionListener(e -> {
-            List<DashboardDAO.RevenuePoint> selected = "Theo ngày".equals(modeBox.getSelectedItem())
-                    ? stats.getRevenueByDay() : stats.getRevenueByMonth();
-            chart.setSeries(selected);
-            chart.repaint();
+        filterButton.addActionListener(e -> applyFilter(fromField, toField));
+        clearButton.addActionListener(e -> {
+            fromField.setText("");
+            toField.setText("");
+            loadStatistics();
         });
 
-        header.add(title, BorderLayout.WEST);
-        header.add(modeBox, BorderLayout.EAST);
-        card.add(header, BorderLayout.NORTH);
-        card.add(chartHolder, BorderLayout.CENTER);
+        return filterPanel;
+    }
 
-        return card;
+    private JTextField createDateField() {
+        JTextField field = new JTextField(10);
+        ((javax.swing.text.AbstractDocument) field.getDocument()).setDocumentFilter(new DateDocumentFilter());
+        field.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent event) {
+                new DatePickerPopup(field).show(field, 0, field.getHeight());
+            }
+        });
+        return field;
+    }
+
+    private void applyFilter(JTextField fromField, JTextField toField) {
+        try {
+            LocalDate fromDate = parseDate(fromField.getText());
+            LocalDate toDate = parseDate(toField.getText());
+            if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
+                throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc.");
+            }
+            loadStatistics(fromDate, toDate);
+        } catch (IllegalArgumentException exception) {
+            showError(exception.getMessage() == null
+                    ? "Ngày lọc không hợp lệ. Vui lòng nhập theo định dạng dd/MM/yyyy."
+                    : exception.getMessage());
+        }
+    }
+
+    private LocalDate parseDate(String value) {
+        String text = value == null ? "" : value.trim();
+        return text.isEmpty() ? null : LocalDate.parse(text, dateFormatter);
+    }
+
+    private static class DateDocumentFilter extends DocumentFilter {
+        @Override
+        public void insertString(FilterBypass bypass, int offset, String text, AttributeSet attributes)
+                throws BadLocationException {
+            replace(bypass, offset, 0, text, attributes);
+        }
+
+        @Override
+        public void remove(FilterBypass bypass, int offset, int length) throws BadLocationException {
+            replace(bypass, offset, length, "", null);
+        }
+
+        @Override
+        public void replace(FilterBypass bypass, int offset, int length, String text, AttributeSet attributes)
+                throws BadLocationException {
+            String current = bypass.getDocument().getText(0, bypass.getDocument().getLength());
+            String next = current.substring(0, offset) + (text == null ? "" : text)
+                    + current.substring(offset + length);
+            String digits = next.replaceAll("\\D", "");
+            if (digits.length() > 8) {
+                digits = digits.substring(0, 8);
+            }
+
+            StringBuilder formatted = new StringBuilder(digits);
+            if (digits.length() > 4) {
+                formatted.insert(4, '/');
+            }
+            if (digits.length() > 2) {
+                formatted.insert(2, '/');
+            }
+
+            bypass.replace(0, bypass.getDocument().getLength(), formatted.toString(), attributes);
+        }
+    }
+
+    private class DatePickerPopup extends JPopupMenu {
+        private final JTextField field;
+        private YearMonth month;
+
+        DatePickerPopup(JTextField field) {
+            this.field = field;
+            this.month = readDate().map(YearMonth::from).orElse(YearMonth.now());
+            rebuild();
+        }
+
+        private java.util.Optional<LocalDate> readDate() {
+            try {
+                return java.util.Optional.ofNullable(parseDate(field.getText()));
+            } catch (IllegalArgumentException exception) {
+                return java.util.Optional.empty();
+            }
+        }
+
+        private void rebuild() {
+            removeAll();
+            setBorder(BorderFactory.createLineBorder(BORDER));
+            setBackground(WHITE);
+
+            JPanel header = new JPanel(new BorderLayout(8, 0));
+            header.setBackground(WHITE);
+            JButton previous = new JButton("<");
+            JButton next = new JButton(">");
+            JLabel monthLabel = new JLabel(month.format(DateTimeFormatter.ofPattern("MM/yyyy")), SwingConstants.CENTER);
+            monthLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            previous.setFocusable(false);
+            next.setFocusable(false);
+            previous.addActionListener(event -> {
+                month = month.minusMonths(1);
+                rebuild();
+                show(field, 0, field.getHeight());
+            });
+            next.addActionListener(event -> {
+                month = month.plusMonths(1);
+                rebuild();
+                show(field, 0, field.getHeight());
+            });
+            header.add(previous, BorderLayout.WEST);
+            header.add(monthLabel, BorderLayout.CENTER);
+            header.add(next, BorderLayout.EAST);
+            add(header);
+
+            JPanel calendar = new JPanel(new GridLayout(0, 7, 2, 2));
+            calendar.setBorder(new EmptyBorder(6, 6, 6, 6));
+            calendar.setBackground(WHITE);
+            for (String day : new String[]{"T2", "T3", "T4", "T5", "T6", "T7", "CN"}) {
+                JLabel label = new JLabel(day, SwingConstants.CENTER);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                label.setForeground(TEXT_GRAY);
+                calendar.add(label);
+            }
+
+            int firstDayOffset = month.atDay(1).getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
+            for (int index = 0; index < firstDayOffset; index++) {
+                calendar.add(new JLabel());
+            }
+            LocalDate selectedDate = readDate().orElse(null);
+            for (int day = 1; day <= month.lengthOfMonth(); day++) {
+                LocalDate date = month.atDay(day);
+                JButton dayButton = new JButton(String.valueOf(day));
+                dayButton.setFocusable(false);
+                dayButton.setMargin(new Insets(2, 5, 2, 5));
+                if (date.equals(selectedDate)) {
+                    dayButton.setBackground(new Color(219, 234, 254));
+                }
+                dayButton.addActionListener(event -> {
+                    field.setText(date.format(dateFormatter));
+                    setVisible(false);
+                });
+                calendar.add(dayButton);
+            }
+            add(calendar);
+            pack();
+        }
     }
 
     private JPanel createSummaryPanel(DashboardDAO.DashboardStats stats) {
@@ -412,76 +561,5 @@ public class StatisticsPanel extends JPanel {
         return cause.getMessage() != null ? cause.getMessage() : cause.toString();
     }
 
-    private static class RevenueChartPanel extends JPanel {
-        private List<DashboardDAO.RevenuePoint> series = new ArrayList<>();
-
-        public RevenueChartPanel(List<DashboardDAO.RevenuePoint> series) {
-            this.series = series == null ? new ArrayList<>() : series;
-            setOpaque(false);
-            setPreferredSize(new Dimension(0, 220));
-        }
-
-        public void setSeries(List<DashboardDAO.RevenuePoint> series) {
-            this.series = series == null ? new ArrayList<>() : series;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int paddingLeft = 42;
-            int paddingRight = 20;
-            int paddingTop = 20;
-            int paddingBottom = 30;
-
-            int chartWidth = getWidth() - paddingLeft - paddingRight;
-            int chartHeight = getHeight() - paddingTop - paddingBottom;
-
-            if (series.isEmpty()) {
-                g2.setColor(new Color(107, 118, 135));
-                g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                g2.drawString("Chưa có dữ liệu", paddingLeft + 20, getHeight() / 2);
-                g2.dispose();
-                return;
-            }
-
-            double maxValue = 0;
-            for (DashboardDAO.RevenuePoint point : series) {
-                if (point.getRevenue() > maxValue) {
-                    maxValue = point.getRevenue();
-                }
-            }
-
-            if (maxValue <= 0) {
-                maxValue = 1;
-            }
-
-            g2.setColor(new Color(225, 229, 236));
-            g2.drawLine(paddingLeft, paddingTop, paddingLeft, getHeight() - paddingBottom);
-            g2.drawLine(paddingLeft, getHeight() - paddingBottom, getWidth() - paddingRight, getHeight() - paddingBottom);
-
-            int barWidth = Math.max(18, chartWidth / Math.max(series.size(), 1) - 12);
-            int xStart = paddingLeft + 12;
-
-            for (int i = 0; i < series.size(); i++) {
-                DashboardDAO.RevenuePoint point = series.get(i);
-                int barHeight = (int) ((point.getRevenue() / maxValue) * (chartHeight - 10));
-                int x = xStart + i * (barWidth + 10);
-                int y = getHeight() - paddingBottom - barHeight;
-
-                g2.setColor(new Color(37, 99, 235));
-                g2.fillRoundRect(x, y, barWidth, barHeight, 8, 8);
-
-                g2.setColor(new Color(107, 118, 135));
-                g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-                g2.drawString(point.getLabel(), x, getHeight() - 10);
-            }
-
-            g2.dispose();
-        }
-    }
 }
 
