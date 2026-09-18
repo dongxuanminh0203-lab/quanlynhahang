@@ -26,7 +26,4 @@ public class TableController {
         tableService.delete(id);
     }
 
-    public void setServing(int id, boolean serving) throws SQLException {
-        tableService.updateStatus(id, serving);
-    }
 }

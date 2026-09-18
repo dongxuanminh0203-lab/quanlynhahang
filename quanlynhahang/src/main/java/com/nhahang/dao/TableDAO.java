@@ -70,16 +70,6 @@ public class TableDAO {
         }
     }
 
-    public int updateStatus(int id, boolean serving) throws SQLException {
-        String sql = "UPDATE restaurant_tables SET status = ? WHERE table_id = ?";
-        try (Connection connection = DBHelper.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, serving ? "SERVING" : "EMPTY");
-            statement.setInt(2, id);
-            return statement.executeUpdate();
-        }
-    }
-
     public int delete(int id) throws SQLException {
         String sql = "DELETE FROM restaurant_tables WHERE table_id = ?";
         try (Connection connection = DBHelper.getConnection();

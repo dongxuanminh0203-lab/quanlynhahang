@@ -816,11 +816,6 @@ public class TablePanel extends JPanel {
 
         JButton delete = createTableActionButton("Xóa", RED);
 
-        JButton statusButton = createTableActionButton(
-                "Trạng thái",
-                empty ? GREEN : RED
-        );
-
         detail.addActionListener(
                 e -> showTableDetail(table)
         );
@@ -833,15 +828,10 @@ public class TablePanel extends JPanel {
                 e -> deleteTable(table)
         );
 
-        statusButton.addActionListener(
-                e -> chooseTableStatus(table)
-        );
-
-        JPanel bottom = new JPanel(new GridLayout(2, 2, 5, 5));
+        JPanel bottom = new JPanel(new GridLayout(1, 3, 5, 5));
 
         bottom.setOpaque(false);
 
-        bottom.add(statusButton);
         bottom.add(detail);
         bottom.add(edit);
         bottom.add(delete);
@@ -1173,40 +1163,6 @@ public class TablePanel extends JPanel {
                 JOptionPane.INFORMATION_MESSAGE
         );
     }
-
-        private void chooseTableStatus(TableInfo table) {
-                String[] statuses = {"TRỐNG", "ĐANG PHỤC VỤ"};
-                String selectedStatus = (String) JOptionPane.showInputDialog(
-                                this,
-                                "Chọn trạng thái cho " + table.name + ":",
-                                "Cập nhật trạng thái bàn",
-                                JOptionPane.PLAIN_MESSAGE,
-                                null,
-                                statuses,
-                                table.status
-                );
-
-                if (selectedStatus == null || selectedStatus.equals(table.status)) {
-                        return;
-                }
-
-                changeTableStatus(table, "ĐANG PHỤC VỤ".equals(selectedStatus));
-        }
-
-        private void changeTableStatus(TableInfo table, boolean serving) {
-                try {
-                        tableController.setServing(table.id, serving);
-                        table.status = serving ? "ĐANG PHỤC VỤ" : "TRỐNG";
-                        loadTables();
-                } catch (Exception exception) {
-                        JOptionPane.showMessageDialog(
-                                        this,
-                                        "Không thể cập nhật trạng thái bàn:\n" + exception.getMessage(),
-                                        "Lỗi cơ sở dữ liệu",
-                                        JOptionPane.ERROR_MESSAGE
-                        );
-                }
-        }
 
     // =========================================================
     // MODEL DEMO

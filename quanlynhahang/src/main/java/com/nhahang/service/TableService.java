@@ -38,8 +38,4 @@ public class TableService {
         tableDAO.delete(id);
     }
 
-    public void updateStatus(int id, boolean serving) throws SQLException {
-        ValidationUtil.requirePositiveId(id, "Mã bàn không hợp lệ");
-        tableDAO.updateStatus(id, serving);
-    }
 }
