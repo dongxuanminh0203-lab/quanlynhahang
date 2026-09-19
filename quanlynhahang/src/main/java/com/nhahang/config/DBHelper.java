@@ -12,8 +12,8 @@ import java.sql.Statement;
 public class DBHelper {
 
     private static final String DATABASE_NAME = "quanlynhahang";
-    private static final String DEFAULT_ADMIN_USERNAME = "admin";
-    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+    private static final String DEFAULT_ADMIN_USERNAME = "root";
+    private static final String DEFAULT_ADMIN_PASSWORD = "123456";
 
     private static final String SERVER_URL =
             "jdbc:mysql://localhost:3306/?"
