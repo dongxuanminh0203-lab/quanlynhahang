@@ -2,6 +2,8 @@ package com.nhahang.view;
 
 import com.nhahang.controller.InvoiceController;
 import com.nhahang.dao.InvoiceDAO;
+import com.nhahang.model.Invoice;
+import com.nhahang.model.InvoiceDetail;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -490,12 +492,12 @@ public class InvoicePanel extends JPanel {
         );
 
         new SwingWorker<
-                List<InvoiceDAO.InvoiceRecord>,
+                List<Invoice>,
                 Void
                 >() {
 
             @Override
-            protected List<InvoiceDAO.InvoiceRecord>
+            protected List<Invoice>
             doInBackground()
                     throws Exception {
 
@@ -507,7 +509,7 @@ public class InvoicePanel extends JPanel {
 
                 try {
 
-                    List<InvoiceDAO.InvoiceRecord>
+                    List<Invoice>
                             invoices = get();
 
                     invoiceModel.setRowCount(0);
@@ -515,7 +517,7 @@ public class InvoicePanel extends JPanel {
                     double total = 0;
 
                     for (
-                            InvoiceDAO.InvoiceRecord invoice
+                            Invoice invoice
                             : invoices
                     ) {
 
@@ -622,12 +624,12 @@ public class InvoicePanel extends JPanel {
         detailModel.setRowCount(0);
 
         new SwingWorker<
-                List<InvoiceDAO.InvoiceDetail>,
+                List<InvoiceDetail>,
                 Void
                 >() {
 
             @Override
-            protected List<InvoiceDAO.InvoiceDetail>
+            protected List<InvoiceDetail>
             doInBackground()
                     throws Exception {
 
@@ -641,13 +643,13 @@ public class InvoicePanel extends JPanel {
 
                 try {
 
-                    List<InvoiceDAO.InvoiceDetail>
+                    List<InvoiceDetail>
                             details = get();
 
                     double total = 0;
 
                     for (
-                            InvoiceDAO.InvoiceDetail detail
+                            InvoiceDetail detail
                             : details
                     ) {
 
@@ -788,12 +790,12 @@ public class InvoicePanel extends JPanel {
             protected Void doInBackground()
                     throws Exception {
 
-                List<InvoiceDAO.InvoiceRecord>
+                List<Invoice>
                         invoices =
                         controller.loadInvoices();
 
                 for (
-                        InvoiceDAO.InvoiceRecord invoice
+                        Invoice invoice
                         : invoices
                 ) {
 

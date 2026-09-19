@@ -1,6 +1,7 @@
 package com.nhahang.service;
 
 import com.nhahang.dao.ProductDAO;
+import com.nhahang.model.Product;
 import com.nhahang.util.ValidationUtil;
 
 import java.sql.SQLException;
@@ -10,7 +11,7 @@ public class ProductService {
 
     private final ProductDAO productDAO = new ProductDAO();
 
-    public List<ProductDAO.ProductRecord> findAll() throws SQLException {
+    public List<Product> findAll() throws SQLException {
         return productDAO.findAll();
     }
 
@@ -18,12 +19,12 @@ public class ProductService {
         return productDAO.nextId();
     }
 
-    public void create(ProductDAO.ProductRecord product) throws SQLException {
+    public void create(Product product) throws SQLException {
         validate(product);
         productDAO.insert(product);
     }
 
-    public void update(ProductDAO.ProductRecord product) throws SQLException {
+    public void update(Product product) throws SQLException {
         validate(product);
         productDAO.update(product);
     }
@@ -33,7 +34,7 @@ public class ProductService {
         productDAO.delete(id);
     }
 
-    private void validate(ProductDAO.ProductRecord product) {
+    private void validate(Product product) {
         if (product == null) {
             throw new IllegalArgumentException("Thông tin món không được để trống");
         }

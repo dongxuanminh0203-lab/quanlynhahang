@@ -1,6 +1,7 @@
 package com.nhahang.service;
 
 import com.nhahang.dao.EmployeeDAO;
+import com.nhahang.model.Employee;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,7 +12,7 @@ public class EmployeeService {
             new EmployeeDAO();
 
     // Lấy danh sách
-    public List<EmployeeDAO.EmployeeRecord> findAll()
+    public List<Employee> findAll()
             throws SQLException {
 
         return employeeDAO.findAll();
@@ -19,7 +20,7 @@ public class EmployeeService {
 
     // Thêm
     public void insert(
-            EmployeeDAO.EmployeeRecord employee
+            Employee employee
     ) throws SQLException {
 
         validate(employee);
@@ -29,7 +30,7 @@ public class EmployeeService {
 
     // Sửa
     public void update(
-            EmployeeDAO.EmployeeRecord employee
+            Employee employee
     ) throws SQLException {
 
         validate(employee);
@@ -52,7 +53,7 @@ public class EmployeeService {
 
     // Kiểm tra dữ liệu
     private void validate(
-            EmployeeDAO.EmployeeRecord employee
+            Employee employee
     ) {
 
         if (employee == null) {

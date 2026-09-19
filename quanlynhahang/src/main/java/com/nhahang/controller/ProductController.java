@@ -2,6 +2,7 @@ package com.nhahang.controller;
 
 import com.nhahang.dao.ProductDAO;
 import com.nhahang.service.ProductService;
+import com.nhahang.model.Product;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,7 +11,7 @@ public class ProductController {
 
     private final ProductService productService = new ProductService();
 
-    public List<ProductDAO.ProductRecord> loadProducts() throws SQLException {
+    public List<Product> loadProducts() throws SQLException {
         return productService.findAll();
     }
 
@@ -18,11 +19,11 @@ public class ProductController {
         return productService.nextId();
     }
 
-    public void addProduct(ProductDAO.ProductRecord product) throws SQLException {
+    public void addProduct(Product product) throws SQLException {
         productService.create(product);
     }
 
-    public void editProduct(ProductDAO.ProductRecord product) throws SQLException {
+    public void editProduct(Product product) throws SQLException {
         productService.update(product);
     }
 

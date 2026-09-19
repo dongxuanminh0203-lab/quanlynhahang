@@ -1,6 +1,8 @@
 package com.nhahang.dao;
 
 import com.nhahang.config.DBHelper;
+import com.nhahang.model.Invoice;
+import com.nhahang.model.InvoiceDetail;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.List;
 public class InvoiceDAO {
 
     // Lấy danh sách hóa đơn
-    public List<InvoiceRecord> findAll() throws SQLException {
+    public List<Invoice> findAll() throws SQLException {
 
         String sql =
                 "SELECT o.order_id, o.table_id, rt.table_name, " +
@@ -19,7 +21,7 @@ public class InvoiceDAO {
                 "ON rt.table_id = o.table_id " +
                 "ORDER BY o.order_id DESC";
 
-        List<InvoiceRecord> list = new ArrayList<>();
+        List<Invoice> list = new ArrayList<>();
 
         try (
                 Connection conn = DBHelper.getConnection();
@@ -29,7 +31,7 @@ public class InvoiceDAO {
 
             while (rs.next()) {
 
-                list.add(new InvoiceRecord(
+                list.add(new Invoice(
                         rs.getInt("order_id"),
                         rs.getInt("table_id"),
                         rs.getString("table_name"),
@@ -159,110 +161,4 @@ public class InvoiceDAO {
         }
     }
 
-    // =========================
-    // HÓA ĐƠN
-    // =========================
-
-    public static class InvoiceRecord {
-
-        private final int orderId;
-        private final int tableId;
-        private final String tableName;
-        private final int employeeId;
-        private final String status;
-        private final double totalAmount;
-
-        public InvoiceRecord(
-                int orderId,
-                int tableId,
-                String tableName,
-                int employeeId,
-                String status,
-                double totalAmount
-        ) {
-
-            this.orderId = orderId;
-            this.tableId = tableId;
-            this.tableName = tableName;
-            this.employeeId = employeeId;
-            this.status = status;
-            this.totalAmount = totalAmount;
-        }
-
-        public int getOrderId() {
-            return orderId;
-        }
-
-        public int getTableId() {
-            return tableId;
-        }
-
-        public String getTableName() {
-            return tableName;
-        }
-
-        public int getEmployeeId() {
-            return employeeId;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public double getTotalAmount() {
-            return totalAmount;
-        }
-    }
-
-    // =========================
-    // CHI TIẾT HÓA ĐƠN
-    // =========================
-
-    public static class InvoiceDetail {
-
-        private final int productId;
-        private final String productName;
-        private final int quantity;
-        private final double unitPrice;
-        private final String note;
-
-        public InvoiceDetail(
-                int productId,
-                String productName,
-                int quantity,
-                double unitPrice,
-                String note
-        ) {
-
-            this.productId = productId;
-            this.productName = productName;
-            this.quantity = quantity;
-            this.unitPrice = unitPrice;
-            this.note = note;
-        }
-
-        public int getProductId() {
-            return productId;
-        }
-
-        public String getProductName() {
-            return productName;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public double getUnitPrice() {
-            return unitPrice;
-        }
-
-        public String getNote() {
-            return note;
-        }
-
-        public double getAmount() {
-            return quantity * unitPrice;
-        }
-    }
 }

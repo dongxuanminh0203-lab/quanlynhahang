@@ -4,6 +4,9 @@ import com.nhahang.dao.OrderDAO;
 import com.nhahang.dao.ProductDAO;
 import com.nhahang.dao.TableDAO;
 import com.nhahang.service.OrderService;
+import com.nhahang.model.OrderItem;
+import com.nhahang.model.Product;
+import com.nhahang.model.RestaurantTable;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,15 +17,15 @@ public class OrderController {
     private final ProductDAO productDAO = new ProductDAO();
     private final TableDAO tableDAO = new TableDAO();
 
-    public List<ProductDAO.ProductRecord> loadProducts() throws SQLException {
+    public List<Product> loadProducts() throws SQLException {
         return productDAO.findAll();
     }
 
-    public List<TableDAO.TableRecord> loadTables() throws SQLException {
+    public List<RestaurantTable> loadTables() throws SQLException {
         return tableDAO.findAll();
     }
 
-    public int createOrder(int tableId, int employeeId, List<OrderDAO.OrderItem> items)
+    public int createOrder(int tableId, int employeeId, List<OrderItem> items)
             throws SQLException {
         return orderService.create(tableId, employeeId, items);
     }

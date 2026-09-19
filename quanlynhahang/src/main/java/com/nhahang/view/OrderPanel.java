@@ -4,6 +4,9 @@ import com.nhahang.controller.OrderController;
 import com.nhahang.dao.OrderDAO;
 import com.nhahang.dao.ProductDAO;
 import com.nhahang.dao.TableDAO;
+import com.nhahang.model.OrderItem;
+import com.nhahang.model.Product;
+import com.nhahang.model.RestaurantTable;
 import com.nhahang.model.User;
 
 import javax.swing.*;
@@ -143,10 +146,10 @@ public class OrderPanel extends JPanel {
 
     private void loadData() {
         try {
-            for (TableDAO.TableRecord record : controller.loadTables()) {
+            for (RestaurantTable record : controller.loadTables()) {
                 tableCombo.addItem(new TableChoice(record.getId(), record.getName(), record.getStatus()));
             }
-            for (ProductDAO.ProductRecord record : controller.loadProducts()) {
+            for (Product record : controller.loadProducts()) {
                 if (record.isAvailable()) {
                     productCombo.addItem(new ProductChoice(Integer.parseInt(record.getId()), record.getName(), record.getPrice()));
                 }
@@ -182,8 +185,8 @@ public class OrderPanel extends JPanel {
         TableChoice table = (TableChoice) tableCombo.getSelectedItem();
         if (table == null) { showError("Vui lòng chọn bàn."); return; }
         try {
-            List<OrderDAO.OrderItem> items = new ArrayList<>();
-            for (CartItem item : cart) items.add(new OrderDAO.OrderItem(item.productId, item.quantity, item.price, null));
+            List<OrderItem> items = new ArrayList<>();
+            for (CartItem item : cart) items.add(new OrderItem(item.productId, item.quantity, item.price, null));
             int orderId = controller.createOrder(table.id, currentUser.getEmployeeId(), items);
             JOptionPane.showMessageDialog(this, "Đã lưu đơn hàng #" + orderId, "Thành công", JOptionPane.INFORMATION_MESSAGE);
             cart.clear();

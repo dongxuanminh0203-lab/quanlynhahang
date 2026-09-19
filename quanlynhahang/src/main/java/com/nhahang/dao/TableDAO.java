@@ -1,6 +1,7 @@
 package com.nhahang.dao;
 
 import com.nhahang.config.DBHelper;
+import com.nhahang.model.RestaurantTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,16 +12,16 @@ import java.util.List;
 
 public class TableDAO {
 
-    public List<TableRecord> findAll() throws SQLException {
+    public List<RestaurantTable> findAll() throws SQLException {
         String sql = "SELECT table_id, table_name, capacity, status "
             + "FROM restaurant_tables ORDER BY table_id";
-        List<TableRecord> records = new ArrayList<>();
+        List<RestaurantTable> records = new ArrayList<>();
 
         try (Connection connection = DBHelper.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                records.add(new TableRecord(
+                records.add(new RestaurantTable(
                         resultSet.getInt("table_id"),
                         resultSet.getString("table_name"),
                         resultSet.getInt("capacity"),
@@ -94,22 +95,4 @@ public class TableDAO {
         }
     }
 
-    public static class TableRecord {
-        private final int id;
-        private final String name;
-        private final int capacity;
-        private final String status;
-
-        public TableRecord(int id, String name, int capacity, String status) {
-            this.id = id;
-            this.name = name;
-            this.capacity = capacity;
-            this.status = status;
-        }
-
-        public int getId() { return id; }
-        public String getName() { return name; }
-        public int getCapacity() { return capacity; }
-        public String getStatus() { return status; }
-    }
 }

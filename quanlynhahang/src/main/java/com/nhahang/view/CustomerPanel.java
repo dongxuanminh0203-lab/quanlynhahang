@@ -2,6 +2,7 @@ package com.nhahang.view;
 
 import com.nhahang.controller.CustomerController;
 import com.nhahang.dao.CustomerDAO;
+import com.nhahang.model.Customer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +25,7 @@ public class CustomerPanel extends JPanel {
     private static final Color RED = new Color(220, 38, 38);
 
     private final CustomerController controller = new CustomerController();
-    private final List<CustomerDAO.CustomerRecord> customers = new ArrayList<>();
+    private final List<Customer> customers = new ArrayList<>();
 
     private JTable customerTable;
     private DefaultTableModel tableModel;
@@ -186,9 +187,9 @@ public class CustomerPanel extends JPanel {
     }
 
     private void loadCustomers() {
-        new SwingWorker<List<CustomerDAO.CustomerRecord>, Void>() {
+        new SwingWorker<List<Customer>, Void>() {
             @Override
-            protected List<CustomerDAO.CustomerRecord> doInBackground() throws Exception {
+            protected List<Customer> doInBackground() throws Exception {
                 return controller.loadCustomers();
             }
 
@@ -211,7 +212,7 @@ public class CustomerPanel extends JPanel {
         String keyword = searchField == null ? "" : searchField.getText().trim().toLowerCase();
         int count = 0;
 
-        for (CustomerDAO.CustomerRecord customer : customers) {
+        for (Customer customer : customers) {
             boolean matches = keyword.isEmpty()
                     || customer.getName().toLowerCase().contains(keyword)
                     || valueOrEmpty(customer.getPhone()).toLowerCase().contains(keyword)
@@ -238,7 +239,7 @@ public class CustomerPanel extends JPanel {
         countLabel.setText(count + " khách hàng");
     }
 
-    private void showCustomerDialog(CustomerDAO.CustomerRecord customer) {
+    private void showCustomerDialog(Customer customer) {
         boolean editing = customer != null;
 
         JTextField idField = new JTextField();
@@ -299,7 +300,7 @@ public class CustomerPanel extends JPanel {
                 return;
             }
 
-            CustomerDAO.CustomerRecord data = new CustomerDAO.CustomerRecord(
+            Customer data = new Customer(
                     id,
                     name,
                     phone,
@@ -315,7 +316,7 @@ public class CustomerPanel extends JPanel {
         }
     }
 
-    private void saveCustomer(CustomerDAO.CustomerRecord customer, boolean editing) {
+    private void saveCustomer(Customer customer, boolean editing) {
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
@@ -360,7 +361,7 @@ public class CustomerPanel extends JPanel {
 
         int customerId = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
 
-        for (CustomerDAO.CustomerRecord customer : customers) {
+        for (Customer customer : customers) {
             if (customer.getId() == customerId) {
                 showCustomerDialog(customer);
                 return;

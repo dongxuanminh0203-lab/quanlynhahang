@@ -2,6 +2,8 @@ package com.nhahang.controller;
 
 import com.nhahang.dao.InvoiceDAO;
 import com.nhahang.service.InvoiceService;
+import com.nhahang.model.Invoice;
+import com.nhahang.model.InvoiceDetail;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,13 +13,13 @@ public class InvoiceController {
     private final InvoiceService invoiceService =
             new InvoiceService();
 
-    public List<InvoiceDAO.InvoiceRecord> loadInvoices()
+        public List<Invoice> loadInvoices()
             throws SQLException {
 
         return invoiceService.findAll();
     }
 
-    public List<InvoiceDAO.InvoiceDetail> loadDetails(
+        public List<InvoiceDetail> loadDetails(
             int orderId
     ) throws SQLException {
 

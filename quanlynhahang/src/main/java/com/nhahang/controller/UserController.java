@@ -1,6 +1,7 @@
 package com.nhahang.controller;
 
 import com.nhahang.dao.UserDAO;
+import com.nhahang.model.UserRecord;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -9,16 +10,16 @@ public class UserController {
 
     private final UserDAO userDAO = new UserDAO();
 
-    public List<UserDAO.UserRecord> loadUsers() throws SQLException {
+    public List<UserRecord> loadUsers() throws SQLException {
         return userDAO.findAll();
     }
 
-    public void addUser(UserDAO.UserRecord user) throws SQLException {
+    public void addUser(UserRecord user) throws SQLException {
         validate(user, true);
         userDAO.insert(user);
     }
 
-    public void updateUser(UserDAO.UserRecord user) throws SQLException {
+    public void updateUser(UserRecord user) throws SQLException {
         validate(user, false);
         userDAO.update(user);
     }
@@ -30,7 +31,7 @@ public class UserController {
         userDAO.delete(userId);
     }
 
-    private void validate(UserDAO.UserRecord user, boolean creating) {
+    private void validate(UserRecord user, boolean creating) {
         if (user == null || user.getUsername() == null || user.getUsername().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên tài khoản không được để trống.");
         }

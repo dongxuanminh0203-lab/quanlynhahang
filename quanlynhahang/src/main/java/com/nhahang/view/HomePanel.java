@@ -2,6 +2,7 @@ package com.nhahang.view;
 
 import com.nhahang.dao.DashboardDAO;
 import com.nhahang.dao.TableDAO;
+import com.nhahang.model.RestaurantTable;
 import com.nhahang.model.User;
 
 import javax.swing.*;
@@ -94,7 +95,7 @@ public class HomePanel extends JPanel {
 
     private JPanel createContent() {
 
-                List<TableDAO.TableRecord> tableRecords = List.of();
+                List<RestaurantTable> tableRecords = List.of();
                 int totalTables = 0;
                 int emptyTables = 0;
                 int servingTables = 0;
@@ -103,7 +104,7 @@ public class HomePanel extends JPanel {
                 try {
                         tableRecords = tableDAO.findAll();
                         totalTables = tableRecords.size();
-                        for (TableDAO.TableRecord table : tableRecords) {
+                        for (RestaurantTable table : tableRecords) {
                                 if ("TRỐNG".equals(table.getStatus())) {
                                         emptyTables++;
                                 } else if ("ĐANG PHỤC VỤ".equals(table.getStatus())) {
@@ -397,7 +398,7 @@ public class HomePanel extends JPanel {
 
         tableGrid.setOpaque(false);
 
-        for (TableDAO.TableRecord tableRecord : tableRecords) {
+        for (RestaurantTable tableRecord : tableRecords) {
             tableGrid.add(
                     createTableCard(
                             tableRecord.getId(),

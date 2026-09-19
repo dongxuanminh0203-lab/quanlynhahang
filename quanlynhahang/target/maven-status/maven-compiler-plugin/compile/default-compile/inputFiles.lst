@@ -17,7 +17,16 @@ C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\d
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\TableDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\dao\UserDAO.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\Main.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\Customer.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\Employee.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\Invoice.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\InvoiceDetail.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\OrderItem.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\Payment.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\Product.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\RestaurantTable.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\User.java
+C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\model\UserRecord.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\CustomerService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\EmployeeService.java
 C:\Users\MINH\OneDrive\quanlynhahang-1\quanlynhahang\src\main\java\com\nhahang\service\InvoiceService.java

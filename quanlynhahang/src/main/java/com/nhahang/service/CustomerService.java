@@ -1,6 +1,7 @@
 package com.nhahang.service;
 
 import com.nhahang.dao.CustomerDAO;
+import com.nhahang.model.Customer;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -9,16 +10,16 @@ public class CustomerService {
 
     private final CustomerDAO customerDAO = new CustomerDAO();
 
-    public List<CustomerDAO.CustomerRecord> findAll() throws SQLException {
+    public List<Customer> findAll() throws SQLException {
         return customerDAO.findAll();
     }
 
-    public void insert(CustomerDAO.CustomerRecord customer) throws SQLException {
+    public void insert(Customer customer) throws SQLException {
         validate(customer);
         customerDAO.insert(customer);
     }
 
-    public void update(CustomerDAO.CustomerRecord customer) throws SQLException {
+    public void update(Customer customer) throws SQLException {
         validate(customer);
         customerDAO.update(customer);
     }
@@ -31,7 +32,7 @@ public class CustomerService {
         customerDAO.delete(customerId);
     }
 
-    private void validate(CustomerDAO.CustomerRecord customer) {
+    private void validate(Customer customer) {
         if (customer == null) {
             throw new IllegalArgumentException("Thông tin khách hàng không được để trống.");
         }

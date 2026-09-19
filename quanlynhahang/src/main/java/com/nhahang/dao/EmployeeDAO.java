@@ -1,6 +1,7 @@
 package com.nhahang.dao;
 
 import com.nhahang.config.DBHelper;
+import com.nhahang.model.Employee;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,7 @@ public class EmployeeDAO {
     // LẤY TẤT CẢ NHÂN VIÊN
     // =========================
 
-    public List<EmployeeRecord> findAll() throws SQLException {
+        public List<Employee> findAll() throws SQLException {
 
         String sql =
                 "SELECT employee_id, employee_name, gender, phone, " +
@@ -24,7 +25,7 @@ public class EmployeeDAO {
                 "FROM employees " +
                 "ORDER BY employee_id";
 
-        List<EmployeeRecord> list =
+        List<Employee> list =
                 new ArrayList<>();
 
         try (
@@ -41,7 +42,7 @@ public class EmployeeDAO {
             while (resultSet.next()) {
 
                 list.add(
-                        new EmployeeRecord(
+                        new Employee(
                                 resultSet.getInt("employee_id"),
                                 resultSet.getString("employee_name"),
                                 resultSet.getString("gender"),
@@ -63,7 +64,7 @@ public class EmployeeDAO {
     // THÊM
     // =========================
 
-    public void insert(EmployeeRecord employee)
+        public void insert(Employee employee)
             throws SQLException {
 
         String sql =
@@ -128,7 +129,7 @@ public class EmployeeDAO {
     // SỬA
     // =========================
 
-    public void update(EmployeeRecord employee)
+        public void update(Employee employee)
             throws SQLException {
 
         String sql =
@@ -222,79 +223,4 @@ public class EmployeeDAO {
         }
     }
 
-    // =========================
-    // MODEL
-    // =========================
-
-    public static class EmployeeRecord {
-
-        private final int id;
-        private final String name;
-        private final String gender;
-        private final String phone;
-        private final String email;
-        private final String address;
-        private final String position;
-        private final boolean active;
-        private final Timestamp createdAt;
-
-        public EmployeeRecord(
-                int id,
-                String name,
-                String gender,
-                String phone,
-                String email,
-                String address,
-                String position,
-                boolean active,
-                Timestamp createdAt
-        ) {
-
-            this.id = id;
-            this.name = name;
-            this.gender = gender;
-            this.phone = phone;
-            this.email = email;
-            this.address = address;
-            this.position = position;
-            this.active = active;
-            this.createdAt = createdAt;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-                public String getGender() {
-                        return gender;
-                }
-
-        public String getPhone() {
-            return phone;
-        }
-
-                public String getEmail() {
-                        return email;
-                }
-
-                public String getAddress() {
-                        return address;
-                }
-
-        public String getPosition() {
-            return position;
-        }
-
-        public boolean isActive() {
-            return active;
-        }
-
-                public Timestamp getCreatedAt() {
-                        return createdAt;
-                }
-    }
 }

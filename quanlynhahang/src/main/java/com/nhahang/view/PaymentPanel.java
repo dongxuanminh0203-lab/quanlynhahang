@@ -2,6 +2,7 @@ package com.nhahang.view;
 
 import com.nhahang.controller.PaymentController;
 import com.nhahang.dao.PaymentDAO;
+import com.nhahang.model.Payment;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -139,9 +140,9 @@ public class PaymentPanel extends JPanel {
     private void loadPayments() {
         countLabel.setText("Đang tải...");
 
-        new SwingWorker<List<PaymentDAO.PaymentRecord>, Void>() {
+        new SwingWorker<List<Payment>, Void>() {
             @Override
-            protected List<PaymentDAO.PaymentRecord> doInBackground()
+            protected List<Payment> doInBackground()
                     throws Exception {
                 return controller.loadPayments();
             }
@@ -149,11 +150,11 @@ public class PaymentPanel extends JPanel {
             @Override
             protected void done() {
                 try {
-                    List<PaymentDAO.PaymentRecord> payments = get();
+                    List<Payment> payments = get();
                     tableModel.setRowCount(0);
                     double total = 0;
 
-                    for (PaymentDAO.PaymentRecord payment : payments) {
+                    for (Payment payment : payments) {
                         tableModel.addRow(new Object[]{
                                 payment.getPaymentId(),
                                 payment.getOrderId(),

@@ -376,7 +376,7 @@ public class ProductPanel extends JPanel {
         private void loadProducts() {
                 products.clear();
                 try {
-                        for (ProductDAO.ProductRecord record : productController.loadProducts()) {
+                        for (com.nhahang.model.Product record : productController.loadProducts()) {
                                 products.add(new Product(
                                                 record.getId(),
                                                 record.getName(),
@@ -1345,7 +1345,7 @@ public class ProductPanel extends JPanel {
                                 selectedImagePath[0];
 
                         try {
-                            productController.editProduct(new ProductDAO.ProductRecord(
+                        productController.editProduct(new com.nhahang.model.Product(
                                     editingProduct.id,
                                     editingProduct.name,
                                     editingProduct.category,
@@ -1369,7 +1369,7 @@ public class ProductPanel extends JPanel {
 
                         try {
                             String id = productController.nextProductId();
-                            productController.addProduct(new ProductDAO.ProductRecord(
+                            productController.addProduct(new com.nhahang.model.Product(
                                     id,
                                     name,
                                     selectedCategory,

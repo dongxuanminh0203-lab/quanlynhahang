@@ -2,6 +2,7 @@ package com.nhahang.view;
 
 import com.nhahang.controller.TableController;
 import com.nhahang.dao.TableDAO;
+import com.nhahang.model.RestaurantTable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -469,7 +470,7 @@ public class TablePanel extends JPanel {
 
                 try {
                         tables.clear();
-                        for (TableDAO.TableRecord record : tableController.loadTables()) {
+                        for (RestaurantTable record : tableController.loadTables()) {
                                 tables.add(new TableInfo(
                                                 record.getId(),
                                                 record.getName(),

@@ -1,6 +1,7 @@
 package com.nhahang.service;
 
 import com.nhahang.dao.TableDAO;
+import com.nhahang.model.RestaurantTable;
 import com.nhahang.util.ValidationUtil;
 
 import java.sql.SQLException;
@@ -10,7 +11,7 @@ public class TableService {
 
     private final TableDAO tableDAO = new TableDAO();
 
-    public List<TableDAO.TableRecord> findAll() throws SQLException {
+    public List<RestaurantTable> findAll() throws SQLException {
         return tableDAO.findAll();
     }
 

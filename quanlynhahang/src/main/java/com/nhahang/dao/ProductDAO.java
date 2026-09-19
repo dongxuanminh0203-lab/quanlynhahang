@@ -1,6 +1,7 @@
 package com.nhahang.dao;
 
 import com.nhahang.config.DBHelper;
+import com.nhahang.model.Product;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,17 +12,17 @@ import java.util.List;
 
 public class ProductDAO {
 
-    public List<ProductRecord> findAll() throws SQLException {
+    public List<Product> findAll() throws SQLException {
         String sql = "SELECT p.product_id, p.product_name, c.category_name, p.price, p.status, p.image_path "
             + "FROM products p JOIN categories c ON c.category_id = p.category_id "
             + "ORDER BY p.product_id";
-        List<ProductRecord> records = new ArrayList<>();
+        List<Product> records = new ArrayList<>();
 
         try (Connection connection = DBHelper.getConnection();
              PreparedStatement statement = prepareAfterMigration(connection, sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                records.add(new ProductRecord(
+                records.add(new Product(
                         resultSet.getString("product_id"),
                         resultSet.getString("product_name"),
                         resultSet.getString("category_name"),
@@ -34,7 +35,7 @@ public class ProductDAO {
         return records;
     }
 
-    public void insert(ProductRecord product) throws SQLException {
+    public void insert(Product product) throws SQLException {
         String sql = "INSERT INTO products "
             + "(product_id, product_name, category_id, price, status, image_path) "
             + "VALUES (?, ?, (SELECT category_id FROM categories WHERE category_name = ?), ?, ?, ?)";
@@ -50,7 +51,7 @@ public class ProductDAO {
         }
     }
 
-    public void update(ProductRecord product) throws SQLException {
+    public void update(Product product) throws SQLException {
         String sql = "UPDATE products SET product_name = ?, category_id = "
             + "(SELECT category_id FROM categories WHERE category_name = ?), price = ?, "
             + "status = ?, image_path = ? WHERE product_id = ?";
@@ -118,29 +119,4 @@ public class ProductDAO {
         }
     }
 
-    public static class ProductRecord {
-        private final String id;
-        private final String name;
-        private final String category;
-        private final double price;
-        private final boolean available;
-        private final String imagePath;
-
-        public ProductRecord(String id, String name, String category, double price,
-                             boolean available, String imagePath) {
-            this.id = id;
-            this.name = name;
-            this.category = category;
-            this.price = price;
-            this.available = available;
-            this.imagePath = imagePath;
-        }
-
-        public String getId() { return id; }
-        public String getName() { return name; }
-        public String getCategory() { return category; }
-        public double getPrice() { return price; }
-        public boolean isAvailable() { return available; }
-        public String getImagePath() { return imagePath; }
-    }
 }

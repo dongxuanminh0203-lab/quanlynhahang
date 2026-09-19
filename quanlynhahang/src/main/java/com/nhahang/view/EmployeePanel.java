@@ -2,6 +2,7 @@ package com.nhahang.view;
 
 import com.nhahang.controller.EmployeeController;
 import com.nhahang.dao.EmployeeDAO;
+import com.nhahang.model.Employee;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -50,7 +51,7 @@ public class EmployeePanel extends JPanel {
     private final EmployeeController controller =
             new EmployeeController();
 
-    private final List<EmployeeDAO.EmployeeRecord>
+        private final List<Employee>
             employees = new ArrayList<>();
 
     // =========================
@@ -554,12 +555,12 @@ public class EmployeePanel extends JPanel {
     private void loadEmployees() {
 
         new SwingWorker<
-                List<EmployeeDAO.EmployeeRecord>,
+                List<Employee>,
                 Void
                 >() {
 
             @Override
-            protected List<EmployeeDAO.EmployeeRecord>
+            protected List<Employee>
             doInBackground()
                     throws Exception {
 
@@ -610,7 +611,7 @@ public class EmployeePanel extends JPanel {
         int count = 0;
 
         for (
-                EmployeeDAO.EmployeeRecord employee
+                Employee employee
                 : employees
         ) {
 
@@ -662,7 +663,7 @@ public class EmployeePanel extends JPanel {
     // =========================================================
 
     private void showEmployeeDialog(
-            EmployeeDAO.EmployeeRecord employee
+            Employee employee
     ) {
 
         boolean editing =
@@ -879,8 +880,8 @@ public class EmployeePanel extends JPanel {
                             .getText()
                             .trim();
 
-            EmployeeDAO.EmployeeRecord data =
-                    new EmployeeDAO.EmployeeRecord(
+            Employee data =
+                    new Employee(
                             id,
                             name,
                             gender,
@@ -910,7 +911,7 @@ public class EmployeePanel extends JPanel {
     // =========================================================
 
     private void saveEmployee(
-            EmployeeDAO.EmployeeRecord employee,
+            Employee employee,
             boolean editing
     ) {
 
@@ -997,11 +998,11 @@ public class EmployeePanel extends JPanel {
                                 .toString()
                 );
 
-        EmployeeDAO.EmployeeRecord selected =
+        Employee selected =
                 null;
 
         for (
-                EmployeeDAO.EmployeeRecord employee
+                Employee employee
                 : employees
         ) {
 

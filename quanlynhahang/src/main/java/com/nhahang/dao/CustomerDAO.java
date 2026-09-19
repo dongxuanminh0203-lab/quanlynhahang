@@ -1,6 +1,7 @@
 package com.nhahang.dao;
 
 import com.nhahang.config.DBHelper;
+import com.nhahang.model.Customer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,11 +30,11 @@ public class CustomerDAO {
         }
     }
 
-    public List<CustomerRecord> findAll() throws SQLException {
+    public List<Customer> findAll() throws SQLException {
         String sql = "SELECT customer_id, customer_name, phone, email, address, points, created_at "
                 + "FROM customers ORDER BY customer_id";
 
-        List<CustomerRecord> list = new ArrayList<>();
+        List<Customer> list = new ArrayList<>();
 
         try (Connection connection = DBHelper.getConnection()) {
             ensureTableExists(connection);
@@ -42,7 +43,7 @@ public class CustomerDAO {
                  ResultSet resultSet = statement.executeQuery()) {
 
                 while (resultSet.next()) {
-                    list.add(new CustomerRecord(
+                    list.add(new Customer(
                             resultSet.getInt("customer_id"),
                             resultSet.getString("customer_name"),
                             resultSet.getString("phone"),
@@ -58,7 +59,7 @@ public class CustomerDAO {
         return list;
     }
 
-    public void insert(CustomerRecord customer) throws SQLException {
+    public void insert(Customer customer) throws SQLException {
         String sql = "INSERT INTO customers (customer_id, customer_name, phone, email, address, points) "
             + "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -77,7 +78,7 @@ public class CustomerDAO {
         }
     }
 
-    public void update(CustomerRecord customer) throws SQLException {
+    public void update(Customer customer) throws SQLException {
         String sql = "UPDATE customers SET customer_name = ?, phone = ?, email = ?, address = ?, points = ? "
                 + "WHERE customer_id = ?";
 
@@ -109,51 +110,4 @@ public class CustomerDAO {
         }
     }
 
-    public static class CustomerRecord {
-        private final int id;
-        private final String name;
-        private final String phone;
-        private final String email;
-        private final String address;
-        private final int points;
-        private final Timestamp createdAt;
-
-        public CustomerRecord(int id, String name, String phone, String email, String address, int points, Timestamp createdAt) {
-            this.id = id;
-            this.name = name;
-            this.phone = phone;
-            this.email = email;
-            this.address = address;
-            this.points = points;
-            this.createdAt = createdAt;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getPhone() {
-            return phone;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public int getPoints() {
-            return points;
-        }
-
-        public Timestamp getCreatedAt() {
-            return createdAt;
-        }
-    }
 }

@@ -2,6 +2,8 @@ package com.nhahang.view;
 
 import com.nhahang.controller.UserController;
 import com.nhahang.dao.EmployeeDAO;
+import com.nhahang.model.Employee;
+import com.nhahang.model.UserRecord;
 import com.nhahang.dao.UserDAO;
 
 import javax.swing.*;
@@ -24,8 +26,8 @@ public class UserPanel extends JPanel {
     private static final Color PRIMARY = new Color(37, 99, 235);
 
     private final UserController controller = new UserController();
-    private final List<UserDAO.UserRecord> users = new ArrayList<>();
-    private final List<EmployeeDAO.EmployeeRecord> employees = new ArrayList<>();
+    private final List<UserRecord> users = new ArrayList<>();
+    private final List<Employee> employees = new ArrayList<>();
 
     private JTable userTable;
     private DefaultTableModel tableModel;
@@ -144,9 +146,9 @@ public class UserPanel extends JPanel {
                 try {
                     Object[] data = get();
                     users.clear();
-                    users.addAll((List<UserDAO.UserRecord>) data[0]);
+                    users.addAll((List<UserRecord>) data[0]);
                     employees.clear();
-                    employees.addAll((List<EmployeeDAO.EmployeeRecord>) data[1]);
+                    employees.addAll((List<Employee>) data[1]);
                     refreshTable();
                 } catch (Exception e) {
                     showError("Không thể tải danh sách tài khoản:\n" + getErrorMessage(e));
@@ -159,7 +161,7 @@ public class UserPanel extends JPanel {
         tableModel.setRowCount(0);
         String keyword = searchField == null ? "" : searchField.getText().trim().toLowerCase();
         int count = 0;
-        for (UserDAO.UserRecord user : users) {
+        for (UserRecord user : users) {
             String employeeName = valueOrEmpty(user.getEmployeeName());
             boolean matches = keyword.isEmpty()
                     || user.getUsername().toLowerCase().contains(keyword)
@@ -175,7 +177,7 @@ public class UserPanel extends JPanel {
         countLabel.setText(count + " tài khoản");
     }
 
-    private void showUserDialog(UserDAO.UserRecord user) {
+    private void showUserDialog(UserRecord user) {
         boolean editing = user != null;
         JTextField usernameField = new JTextField(editing ? user.getUsername() : "");
         JPasswordField passwordField = new JPasswordField();
@@ -184,7 +186,7 @@ public class UserPanel extends JPanel {
         JCheckBox activeBox = new JCheckBox("Tài khoản đang hoạt động", !editing || user.isActive());
         if (editing) roleBox.setSelectedItem(user.getRole());
         employeeBox.addItem(new EmployeeOption(null, "Không liên kết"));
-        for (EmployeeDAO.EmployeeRecord employee : employees) {
+        for (Employee employee : employees) {
             employeeBox.addItem(new EmployeeOption(employee.getId(), employee.getId() + " - " + employee.getName()));
         }
         if (editing && user.getEmployeeId() != null) {
@@ -213,7 +215,7 @@ public class UserPanel extends JPanel {
 
         String password = new String(passwordField.getPassword()).trim();
         EmployeeOption employee = (EmployeeOption) employeeBox.getSelectedItem();
-        UserDAO.UserRecord data = new UserDAO.UserRecord(
+        UserRecord data = new UserRecord(
                 editing ? user.getId() : 0,
                 usernameField.getText().trim(), password, roleBox.getSelectedItem().toString(),
                 employee == null ? null : employee.id, activeBox.isSelected(), null,
@@ -221,7 +223,7 @@ public class UserPanel extends JPanel {
         saveUser(data, editing);
     }
 
-    private void saveUser(UserDAO.UserRecord user, boolean editing) {
+    private void saveUser(UserRecord user, boolean editing) {
         new SwingWorker<Void, Void>() {
             protected Void doInBackground() throws Exception {
                 if (editing) controller.updateUser(user); else controller.addUser(user);
@@ -240,13 +242,13 @@ public class UserPanel extends JPanel {
     }
 
     private void editSelectedUser() {
-        UserDAO.UserRecord user = selectedUser();
+        UserRecord user = selectedUser();
         if (user == null) return;
         showUserDialog(user);
     }
 
     private void deleteSelectedUser() {
-        UserDAO.UserRecord user = selectedUser();
+        UserRecord user = selectedUser();
         if (user == null) return;
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc muốn xóa tài khoản " + user.getUsername() + "?",
@@ -261,14 +263,14 @@ public class UserPanel extends JPanel {
         }.execute();
     }
 
-    private UserDAO.UserRecord selectedUser() {
+    private UserRecord selectedUser() {
         int row = userTable.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         int id = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
-        for (UserDAO.UserRecord user : users) if (user.getId() == id) return user;
+        for (UserRecord user : users) if (user.getId() == id) return user;
         return null;
     }
 
