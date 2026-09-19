@@ -29,7 +29,7 @@ public class DBHelper {
 
     private static final String USER = "root";
 
-    private static final String PASSWORD = "huy11062005";
+    private static final String PASSWORD = "123456";
 
     private DBHelper() {
     }
