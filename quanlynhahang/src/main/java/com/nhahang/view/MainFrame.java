@@ -133,19 +133,18 @@ public class MainFrame extends JFrame {
                 );
 
         /*
-         * QUAN TRỌNG:
-         * Sidebar chỉ rộng 250px
+         * Đủ rộng cho nội dung menu và scrollbar dọc.
          */
         sidebar.setPreferredSize(
-                new Dimension(250, 0)
+                new Dimension(280, 0)
         );
 
         sidebar.setMinimumSize(
-                new Dimension(250, 0)
+                new Dimension(280, 0)
         );
 
         sidebar.setMaximumSize(
-                new Dimension(250, Integer.MAX_VALUE)
+                new Dimension(280, Integer.MAX_VALUE)
         );
 
         sidebar.setBackground(
@@ -878,14 +877,14 @@ public class MainFrame extends JFrame {
          */
         button.setPreferredSize(
                 new Dimension(
-                        214,
+                        244,
                         48
                 )
         );
 
         button.setMinimumSize(
                 new Dimension(
-                        214,
+                        244,
                         48
                 )
         );
