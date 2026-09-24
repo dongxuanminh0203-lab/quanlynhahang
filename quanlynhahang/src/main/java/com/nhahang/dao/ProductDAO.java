@@ -14,7 +14,7 @@ import java.util.List;
 public class ProductDAO {
 
     public List<Product> findAll() throws SQLException {
-        String sql = "SELECT p.product_id, p.product_name, c.category_name, p.price, p.status, p.image_path, p.ingredients "
+        String sql = "SELECT p.product_id, p.product_name, c.category_name, p.price, p.status, p.image_path, p.ingredients, p.serve_immediately "
             + "FROM products p JOIN categories c ON c.category_id = p.category_id "
             + "ORDER BY p.product_id";
         List<Product> records = new ArrayList<>();
@@ -30,7 +30,8 @@ public class ProductDAO {
                         resultSet.getDouble("price"),
                         resultSet.getBoolean("status"),
                         resultSet.getString("image_path"),
-                        resultSet.getString("ingredients")
+                        resultSet.getString("ingredients"),
+                        resultSet.getBoolean("serve_immediately")
                 ));
             }
         }
@@ -39,8 +40,8 @@ public class ProductDAO {
 
     public void insert(Product product) throws SQLException {
         String sql = "INSERT INTO products "
-            + "(product_id, product_name, category_id, price, status, image_path, ingredients) "
-            + "VALUES (?, ?, (SELECT category_id FROM categories WHERE category_name = ?), ?, ?, ?, ?)";
+            + "(product_id, product_name, category_id, price, status, image_path, ingredients, serve_immediately) "
+            + "VALUES (?, ?, (SELECT category_id FROM categories WHERE category_name = ?), ?, ?, ?, ?, ?)";
         try (Connection connection = DBHelper.getConnection();
              PreparedStatement statement = prepareAfterMigration(connection, sql)) {
             statement.setInt(1, Integer.parseInt(product.getId()));
@@ -50,6 +51,7 @@ public class ProductDAO {
             statement.setBoolean(5, product.isAvailable());
             statement.setString(6, product.getImagePath());
             statement.setString(7, product.getIngredients());
+            statement.setBoolean(8, product.isServeImmediately());
             statement.executeUpdate();
         }
         AuditLogger.log("CREATE_PRODUCT", "PRODUCT", Integer.valueOf(product.getId()), "Tạo món ăn");
@@ -58,7 +60,7 @@ public class ProductDAO {
     public void update(Product product) throws SQLException {
         String sql = "UPDATE products SET product_name = ?, category_id = "
             + "(SELECT category_id FROM categories WHERE category_name = ?), price = ?, "
-            + "status = ?, image_path = ?, ingredients = ? WHERE product_id = ?";
+            + "status = ?, image_path = ?, ingredients = ?, serve_immediately = ? WHERE product_id = ?";
         try (Connection connection = DBHelper.getConnection();
              PreparedStatement statement = prepareAfterMigration(connection, sql)) {
             statement.setString(1, product.getName());
@@ -67,7 +69,8 @@ public class ProductDAO {
             statement.setBoolean(4, product.isAvailable());
             statement.setString(5, product.getImagePath());
             statement.setString(6, product.getIngredients());
-            statement.setInt(7, Integer.parseInt(product.getId()));
+            statement.setBoolean(7, product.isServeImmediately());
+            statement.setInt(8, Integer.parseInt(product.getId()));
             statement.executeUpdate();
         }
         AuditLogger.log("UPDATE_PRODUCT", "PRODUCT", Integer.valueOf(product.getId()), "Cập nhật món ăn");
@@ -99,7 +102,24 @@ public class ProductDAO {
     ) throws SQLException {
         ensureImageColumn(connection);
         ensureIngredientsColumn(connection);
+        ensureServeImmediatelyColumn(connection);
         return connection.prepareStatement(sql);
+    }
+
+    private void ensureServeImmediatelyColumn(Connection connection) throws SQLException {
+        String checkSql = "SELECT COUNT(*) FROM information_schema.columns "
+                + "WHERE table_schema = DATABASE() AND table_name = 'products' "
+                + "AND column_name = 'serve_immediately'";
+        try (PreparedStatement statement = connection.prepareStatement(checkSql);
+             ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+            if (resultSet.getInt(1) == 0) {
+                try (PreparedStatement alter = connection.prepareStatement(
+                        "ALTER TABLE products ADD COLUMN serve_immediately BOOLEAN NOT NULL DEFAULT FALSE")) {
+                    alter.executeUpdate();
+                }
+            }
+        }
     }
 
     private void ensureImageColumn(Connection connection)

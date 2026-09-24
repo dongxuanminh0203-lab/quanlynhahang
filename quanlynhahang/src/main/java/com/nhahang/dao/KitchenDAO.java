@@ -15,14 +15,19 @@ public class KitchenDAO {
     public List<KitchenOrderItem> findItems() throws SQLException {
         try (Connection connection = DBHelper.getConnection()) {
             ensureInventorySchema(connection);
-            String sql = "SELECT o.order_id, od.product_id, rt.table_name, "
-                    + "p.product_name, od.quantity, p.ingredients, od.note, od.cooking_status "
+                String sql = "SELECT o.order_id, od.product_id, rt.table_name, "
+                    + "p.product_name, SUM(od.quantity) AS quantity, p.ingredients, "
+                    + "MAX(od.note) AS note, "
+                    + "CASE WHEN SUM(CASE WHEN od.cooking_status = 'PENDING' THEN 1 ELSE 0 END) > 0 "
+                    + "THEN 'PENDING' WHEN SUM(CASE WHEN od.cooking_status = 'COOKING' THEN 1 ELSE 0 END) > 0 "
+                    + "THEN 'COOKING' ELSE 'READY' END AS cooking_status "
                     + "FROM order_details od "
                     + "JOIN orders o ON o.order_id = od.order_id "
                     + "JOIN products p ON p.product_id = od.product_id "
                     + "JOIN restaurant_tables rt ON rt.table_id = o.table_id "
-                    + "WHERE o.status <> 'PAID' "
-                    + "ORDER BY od.cooking_status, o.order_id, od.product_id";
+                    + "WHERE o.status <> 'PAID' AND p.serve_immediately = FALSE "
+                    + "GROUP BY o.order_id, od.product_id, rt.table_name, p.product_name, p.ingredients "
+                    + "ORDER BY cooking_status, o.order_id, od.product_id";
             List<KitchenOrderItem> items = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(sql);
                  ResultSet resultSet = statement.executeQuery()) {
@@ -72,23 +77,22 @@ public class KitchenDAO {
 
     private void deductIngredients(Connection connection, int orderId, int productId)
             throws SQLException {
-        String detailSql = "SELECT quantity, inventory_deducted_at FROM order_details "
-                + "WHERE order_id = ? AND product_id = ? FOR UPDATE";
+        String detailSql = "SELECT quantity "
+            + "FROM order_details WHERE order_id = ? AND product_id = ? "
+            + "AND inventory_deducted_at IS NULL FOR UPDATE";
         int orderQuantity;
-        boolean alreadyDeducted;
         try (PreparedStatement statement = connection.prepareStatement(detailSql)) {
             statement.setInt(1, orderId);
             statement.setInt(2, productId);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    throw new SQLException("Không tìm thấy món trong đơn hàng");
+                orderQuantity = 0;
+                while (resultSet.next()) {
+                    orderQuantity += resultSet.getInt("quantity");
                 }
-                orderQuantity = resultSet.getInt("quantity");
-                alreadyDeducted = resultSet.getTimestamp("inventory_deducted_at") != null;
             }
         }
 
-        if (alreadyDeducted) {
+        if (orderQuantity == 0) {
             return;
         }
 

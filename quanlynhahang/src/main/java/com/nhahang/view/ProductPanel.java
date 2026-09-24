@@ -391,7 +391,8 @@ public class ProductPanel extends JPanel {
                                                 record.getPrice(),
                                                 record.isAvailable(),
                                                 record.getImagePath(),
-                                                record.getIngredients()
+                                                record.getIngredients(),
+                                                record.isServeImmediately()
                                 ));
                         }
                 } catch (Exception exception) {
@@ -988,6 +989,9 @@ public class ProductPanel extends JPanel {
                         "Đang bán"
                 );
 
+        JCheckBox serveImmediatelyCheck =
+                new JCheckBox("Phục vụ ngay, không cần nấu");
+
         availableCheck.setFont(
                 new Font(
                         "Segoe UI",
@@ -1123,6 +1127,7 @@ public class ProductPanel extends JPanel {
             );
 
             ingredientsField.setText(editingProduct.getIngredients());
+            serveImmediatelyCheck.setSelected(editingProduct.serveImmediately);
 
             availableCheck.setSelected(
                     editingProduct.available
@@ -1289,6 +1294,7 @@ public class ProductPanel extends JPanel {
         form.add(Box.createVerticalStrut(15));
 
         form.add(availableCheck);
+        form.add(serveImmediatelyCheck);
 
         main.add(
                 form,
@@ -1412,7 +1418,8 @@ public class ProductPanel extends JPanel {
                                     editingProduct.price,
                                     editingProduct.available,
                                     editingProduct.imagePath,
-                                    ingredients
+                                    ingredients,
+                                    serveImmediatelyCheck.isSelected()
                             ));
                         } catch (Exception exception) {
                             JOptionPane.showMessageDialog(
@@ -1437,7 +1444,8 @@ public class ProductPanel extends JPanel {
                                     price,
                                     availableCheck.isSelected(),
                                     selectedImagePath[0],
-                                    ingredients
+                                    ingredients,
+                                    serveImmediatelyCheck.isSelected()
                             ));
                         } catch (Exception exception) {
                             JOptionPane.showMessageDialog(
@@ -1959,6 +1967,7 @@ public class ProductPanel extends JPanel {
         boolean available;
         String imagePath;
         String ingredients;
+        boolean serveImmediately;
 
         Product(
                 String id,
@@ -1967,7 +1976,8 @@ public class ProductPanel extends JPanel {
                 double price,
                 boolean available,
                 String imagePath,
-                String ingredients
+                String ingredients,
+                boolean serveImmediately
         ) {
 
             this.id = id;
@@ -1977,6 +1987,7 @@ public class ProductPanel extends JPanel {
             this.available = available;
             this.imagePath = imagePath;
                         this.ingredients = ingredients == null ? "" : ingredients;
+                        this.serveImmediately = serveImmediately;
         }
 
                 String getIngredients() {

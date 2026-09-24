@@ -151,7 +151,7 @@ public class OrderPanel extends JPanel {
             }
             for (Product record : controller.loadProducts()) {
                 if (record.isAvailable()) {
-                    productCombo.addItem(new ProductChoice(Integer.parseInt(record.getId()), record.getName(), record.getPrice()));
+                    productCombo.addItem(new ProductChoice(Integer.parseInt(record.getId()), record.getName(), record.getPrice(), record.isServeImmediately()));
                 }
             }
         } catch (Exception exception) {
@@ -166,7 +166,7 @@ public class OrderPanel extends JPanel {
         for (CartItem item : cart) {
             if (item.productId == selected.id) { item.quantity += quantity; refreshCart(); return; }
         }
-        cart.add(new CartItem(selected.id, selected.name, selected.price, quantity));
+        cart.add(new CartItem(selected.id, selected.name, selected.price, quantity, selected.serveImmediately));
         refreshCart();
     }
 
@@ -186,7 +186,7 @@ public class OrderPanel extends JPanel {
         if (table == null) { showError("Vui lòng chọn bàn."); return; }
         try {
             List<OrderItem> items = new ArrayList<>();
-            for (CartItem item : cart) items.add(new OrderItem(item.productId, item.quantity, item.price, null));
+            for (CartItem item : cart) items.add(new OrderItem(item.productId, item.quantity, item.price, null, item.serveImmediately));
             int orderId = controller.createOrder(table.id, currentUser.getEmployeeId(), items);
             JOptionPane.showMessageDialog(this, "Đã lưu đơn hàng #" + orderId, "Thành công", JOptionPane.INFORMATION_MESSAGE);
             cart.clear();
@@ -208,12 +208,12 @@ public class OrderPanel extends JPanel {
         @Override public String toString() { return name + " - " + status; }
     }
     private static class ProductChoice {
-        private final int id; private final String name; private final double price;
-        ProductChoice(int id, String name, double price) { this.id = id; this.name = name; this.price = price; }
+        private final int id; private final String name; private final double price; private final boolean serveImmediately;
+        ProductChoice(int id, String name, double price, boolean serveImmediately) { this.id = id; this.name = name; this.price = price; this.serveImmediately = serveImmediately; }
         @Override public String toString() { return name + " - " + price + " đ"; }
     }
     private static class CartItem {
-        private final int productId; private final String name; private final double price; private int quantity;
-        CartItem(int productId, String name, double price, int quantity) { this.productId = productId; this.name = name; this.price = price; this.quantity = quantity; }
+        private final int productId; private final String name; private final double price; private final boolean serveImmediately; private int quantity;
+        CartItem(int productId, String name, double price, int quantity, boolean serveImmediately) { this.productId = productId; this.name = name; this.price = price; this.quantity = quantity; this.serveImmediately = serveImmediately; }
     }
 }

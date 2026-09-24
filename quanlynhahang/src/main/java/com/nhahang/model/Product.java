@@ -8,6 +8,7 @@ public class Product {
     private final boolean available;
     private final String imagePath;
     private final String ingredients;
+    private final boolean serveImmediately;
 
     public Product(String id, String name, String category, double price,
                    boolean available, String imagePath) {
@@ -16,6 +17,12 @@ public class Product {
 
     public Product(String id, String name, String category, double price,
                    boolean available, String imagePath, String ingredients) {
+        this(id, name, category, price, available, imagePath, ingredients, false);
+    }
+
+    public Product(String id, String name, String category, double price,
+                   boolean available, String imagePath, String ingredients,
+                   boolean serveImmediately) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -23,6 +30,7 @@ public class Product {
         this.available = available;
         this.imagePath = imagePath;
         this.ingredients = ingredients == null ? "" : ingredients;
+        this.serveImmediately = serveImmediately;
     }
 
     public String getId() { return id; }
@@ -32,4 +40,5 @@ public class Product {
     public boolean isAvailable() { return available; }
     public String getImagePath() { return imagePath; }
     public String getIngredients() { return ingredients; }
+    public boolean isServeImmediately() { return serveImmediately; }
 }
