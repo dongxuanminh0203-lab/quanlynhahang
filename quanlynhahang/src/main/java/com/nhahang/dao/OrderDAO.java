@@ -17,10 +17,12 @@ public class OrderDAO {
         String orderSql = "INSERT INTO orders "
                 + "(table_id, employee_id, status, total_amount) VALUES (?, ?, 'OPEN', ?)";
         String detailSql = "INSERT INTO order_details "
-                + "(order_id, product_id, quantity, unit_price, note) VALUES (?, ?, ?, ?, ?)";
+            + "(order_id, product_id, quantity, unit_price, note, cooking_status) "
+            + "VALUES (?, ?, ?, ?, ?, 'PENDING')";
         String tableSql = "UPDATE restaurant_tables SET status = 'SERVING' WHERE table_id = ?";
 
         try (Connection connection = DBHelper.getConnection()) {
+            ensureCookingStatusColumn(connection);
             connection.setAutoCommit(false);
             try {
                 double total = items.stream()
@@ -67,6 +69,27 @@ public class OrderDAO {
                 throw exception;
             } finally {
                 connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    private void ensureCookingStatusColumn(Connection connection)
+            throws SQLException {
+        String checkSql =
+                "SELECT COUNT(*) FROM information_schema.columns " +
+                "WHERE table_schema = DATABASE() " +
+                "AND table_name = 'order_details' " +
+                "AND column_name = 'cooking_status'";
+
+        try (PreparedStatement statement = connection.prepareStatement(checkSql);
+             ResultSet resultSet = statement.executeQuery()) {
+            resultSet.next();
+            if (resultSet.getInt(1) == 0) {
+                try (PreparedStatement alter = connection.prepareStatement(
+                        "ALTER TABLE order_details " +
+                                "ADD COLUMN cooking_status VARCHAR(20) NOT NULL DEFAULT 'PENDING'")) {
+                    alter.executeUpdate();
+                }
             }
         }
     }

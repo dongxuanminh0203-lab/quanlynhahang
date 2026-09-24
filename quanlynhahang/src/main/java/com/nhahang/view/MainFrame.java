@@ -390,10 +390,22 @@ public class MainFrame extends JFrame {
                         "Quản lý món ăn"
                 );
 
+        JButton btnInventory =
+                createMenuButton(
+                        "▦",
+                        "Kho nguyên liệu"
+                );
+
         JButton btnOrder =
                 createMenuButton(
                         "▤",
                         "Gọi món"
+                );
+
+        JButton btnKitchen =
+                createMenuButton(
+                        "♨",
+                        "Nhà bếp"
                 );
 
         JButton btnInvoice =
@@ -455,7 +467,17 @@ public class MainFrame extends JFrame {
 
         addMenu(
                 top,
+                btnInventory
+        );
+
+        addMenu(
+                top,
                 btnOrder
+        );
+
+        addMenu(
+                top,
+                btnKitchen
         );
 
         addMenu(
@@ -702,6 +724,19 @@ public class MainFrame extends JFrame {
                 }
         );
 
+        btnInventory.addActionListener(
+                e -> {
+
+                    setSelectedButton(
+                            btnInventory
+                    );
+
+                    showPanel(
+                            new IngredientPanel()
+                    );
+                }
+        );
+
         btnOrder.addActionListener(
                 e -> {
 
@@ -711,6 +746,19 @@ public class MainFrame extends JFrame {
 
                     showPanel(
                             new OrderPanel(currentUser)
+                    );
+                }
+        );
+
+        btnKitchen.addActionListener(
+                e -> {
+
+                    setSelectedButton(
+                            btnKitchen
+                    );
+
+                    showPanel(
+                            new KitchenPanel()
                     );
                 }
         );

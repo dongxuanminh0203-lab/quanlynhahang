@@ -1,11 +1,16 @@
 package com.nhahang.view;
 
 import com.nhahang.controller.ProductController;
-import com.nhahang.dao.ProductDAO;
+import com.nhahang.controller.IngredientController;
+import com.nhahang.controller.RecipeController;
+import com.nhahang.dao.RecipeDAO;
+import com.nhahang.model.Ingredient;
+import com.nhahang.model.ProductIngredient;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -50,6 +55,8 @@ public class ProductPanel extends JPanel {
 
     private final List<Product> products = new ArrayList<>();
         private final ProductController productController = new ProductController();
+        private final IngredientController ingredientController = new IngredientController();
+        private final RecipeController recipeController = new RecipeController();
 
     private final NumberFormat currency =
             NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -383,7 +390,8 @@ public class ProductPanel extends JPanel {
                                                 record.getCategory(),
                                                 record.getPrice(),
                                                 record.isAvailable(),
-                                                record.getImagePath()
+                                                record.getImagePath(),
+                                                record.getIngredients()
                                 ));
                         }
                 } catch (Exception exception) {
@@ -468,6 +476,19 @@ public class ProductPanel extends JPanel {
         category.setForeground(TEXT_GRAY);
         category.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        String ingredientsText = product.getIngredients().trim();
+        JLabel ingredients = new JLabel(
+                ingredientsText.isEmpty()
+                        ? "Thành phần: Chưa cập nhật"
+                        : "Thành phần: " + ingredientsText
+        );
+        ingredients.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        ingredients.setForeground(TEXT_GRAY);
+        ingredients.setAlignmentX(Component.LEFT_ALIGNMENT);
+        ingredients.setToolTipText(
+                ingredientsText.isEmpty() ? null : ingredientsText
+        );
+
         JPanel priceStatus =
                 new JPanel(new BorderLayout());
 
@@ -500,7 +521,7 @@ public class ProductPanel extends JPanel {
         );
 
         JPanel buttons = new JPanel(
-                new GridLayout(1, 2, 8, 0)
+                new GridLayout(1, 3, 8, 0)
         );
 
         buttons.setOpaque(false);
@@ -514,6 +535,9 @@ public class ProductPanel extends JPanel {
         JButton deleteButton =
                 createDeleteButton("Xóa");
 
+        JButton recipeButton =
+                createSmallButton("Công thức");
+
         editButton.addActionListener(
                 e -> showProductDialog(product)
         );
@@ -522,12 +546,19 @@ public class ProductPanel extends JPanel {
                 e -> deleteProduct(product)
         );
 
+        recipeButton.addActionListener(
+                e -> showRecipeDialog(product)
+        );
+
         buttons.add(editButton);
+        buttons.add(recipeButton);
         buttons.add(deleteButton);
 
         info.add(name);
         info.add(Box.createVerticalStrut(2));
         info.add(category);
+        info.add(Box.createVerticalStrut(6));
+        info.add(ingredients);
         info.add(Box.createVerticalStrut(6));
         info.add(priceStatus);
         info.add(Box.createVerticalStrut(8));
@@ -791,7 +822,7 @@ public class ProductPanel extends JPanel {
 
         dialog.setSize(
                 650,
-                620
+                700
         );
 
         dialog.setLocationRelativeTo(this);
@@ -930,6 +961,25 @@ public class ProductPanel extends JPanel {
                         Integer.MAX_VALUE,
                         42
                 )
+        );
+
+        JLabel ingredientsLabel = createFieldLabel("Thành phần món ăn");
+
+        JTextArea ingredientsField = new JTextArea(3, 20);
+        ingredientsField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        ingredientsField.setLineWrap(true);
+        ingredientsField.setWrapStyleWord(true);
+        ingredientsField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BORDER),
+                        new EmptyBorder(8, 10, 8, 10)
+                )
+        );
+
+        JScrollPane ingredientsScroll = new JScrollPane(ingredientsField);
+        ingredientsScroll.setBorder(null);
+        ingredientsScroll.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 90)
         );
 
         // Trạng thái
@@ -1071,6 +1121,8 @@ public class ProductPanel extends JPanel {
                             editingProduct.price
                     )
             );
+
+            ingredientsField.setText(editingProduct.getIngredients());
 
             availableCheck.setSelected(
                     editingProduct.available
@@ -1224,6 +1276,12 @@ public class ProductPanel extends JPanel {
 
         form.add(Box.createVerticalStrut(15));
 
+        form.add(ingredientsLabel);
+        form.add(Box.createVerticalStrut(7));
+        form.add(ingredientsScroll);
+
+        form.add(Box.createVerticalStrut(15));
+
         form.add(imageLabel);
         form.add(Box.createVerticalStrut(7));
         form.add(imageChoosePanel);
@@ -1327,6 +1385,8 @@ public class ProductPanel extends JPanel {
                                             .getSelectedItem()
                             );
 
+                    String ingredients = ingredientsField.getText().trim();
+
                     if (editing) {
 
                         editingProduct.name =
@@ -1351,7 +1411,8 @@ public class ProductPanel extends JPanel {
                                     editingProduct.category,
                                     editingProduct.price,
                                     editingProduct.available,
-                                    editingProduct.imagePath
+                                    editingProduct.imagePath,
+                                    ingredients
                             ));
                         } catch (Exception exception) {
                             JOptionPane.showMessageDialog(
@@ -1375,7 +1436,8 @@ public class ProductPanel extends JPanel {
                                     selectedCategory,
                                     price,
                                     availableCheck.isSelected(),
-                                    selectedImagePath[0]
+                                    selectedImagePath[0],
+                                    ingredients
                             ));
                         } catch (Exception exception) {
                             JOptionPane.showMessageDialog(
@@ -1406,6 +1468,145 @@ public class ProductPanel extends JPanel {
         dialog.setContentPane(main);
         dialog.setVisible(true);
     }
+
+        private void showRecipeDialog(Product product) {
+                int productId;
+                try {
+                        productId = Integer.parseInt(product.id);
+                } catch (NumberFormatException exception) {
+                        JOptionPane.showMessageDialog(this, "Mã món không hợp lệ.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                }
+
+                JDialog dialog = new JDialog(
+                                SwingUtilities.getWindowAncestor(this),
+                                "Công thức - " + product.name,
+                                Dialog.ModalityType.APPLICATION_MODAL
+                );
+                dialog.setSize(650, 480);
+                dialog.setLocationRelativeTo(this);
+
+                JPanel root = new JPanel(new BorderLayout(0, 12));
+                root.setBackground(WHITE);
+                root.setBorder(new EmptyBorder(20, 24, 18, 24));
+
+                JLabel title = new JLabel("Khai báo nguyên liệu cho: " + product.name);
+                title.setFont(new Font("Segoe UI", Font.BOLD, 19));
+                title.setForeground(TEXT);
+                root.add(title, BorderLayout.NORTH);
+
+                DefaultTableModel recipeModel = new DefaultTableModel(
+                                new Object[]{"Nguyên liệu", "Đơn vị", "Số lượng dùng / 1 món"}, 0
+                ) {
+                        @Override public boolean isCellEditable(int row, int column) { return false; }
+                };
+                JTable recipeTable = new JTable(recipeModel);
+                recipeTable.setRowHeight(34);
+                recipeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                JComboBox<IngredientChoice> ingredientCombo = new JComboBox<>();
+                JTextField quantityField = new JTextField();
+                JButton addButton = new JButton("Thêm nguyên liệu");
+                JButton removeButton = new JButton("Xóa dòng");
+                JPanel editor = new JPanel(new BorderLayout(8, 0));
+                editor.setOpaque(false);
+                editor.add(ingredientCombo, BorderLayout.CENTER);
+                quantityField.setPreferredSize(new Dimension(120, 34));
+                editor.add(quantityField, BorderLayout.EAST);
+                editor.add(addButton, BorderLayout.WEST);
+
+                List<IngredientChoice> choices = new ArrayList<>();
+                try {
+                        for (Ingredient ingredient : ingredientController.loadIngredients()) {
+                                if (ingredient.isActive()) {
+                                        IngredientChoice choice = new IngredientChoice(
+                                                        ingredient.getId(), ingredient.getName(), ingredient.getUnit()
+                                        );
+                                        choices.add(choice);
+                                        ingredientCombo.addItem(choice);
+                                }
+                        }
+                        for (ProductIngredient recipe : recipeController.loadRecipe(productId)) {
+                                recipeModel.addRow(new Object[]{
+                                                recipe.getIngredientName(), recipe.getUnit(), recipe.getQuantityRequired()
+                                });
+                        }
+                } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(this,
+                                        "Không thể tải công thức:\n" + exception.getMessage(),
+                                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                }
+
+                addButton.addActionListener(event -> {
+                        IngredientChoice choice = (IngredientChoice) ingredientCombo.getSelectedItem();
+                        if (choice == null) return;
+                        try {
+                                double quantity = Double.parseDouble(quantityField.getText().trim());
+                                if (quantity <= 0) throw new NumberFormatException();
+                                boolean duplicate = false;
+                                for (int row = 0; row < recipeModel.getRowCount(); row++) {
+                                        if (choice.name.equals(String.valueOf(recipeModel.getValueAt(row, 0)))) {
+                                                duplicate = true;
+                                                break;
+                                        }
+                                }
+                                if (duplicate) {
+                                        JOptionPane.showMessageDialog(dialog, "Nguyên liệu này đã có trong công thức.",
+                                                        "Thông báo", JOptionPane.WARNING_MESSAGE);
+                                        return;
+                                }
+                                recipeModel.addRow(new Object[]{choice.name, choice.unit, quantity});
+                                quantityField.setText("");
+                        } catch (NumberFormatException exception) {
+                                JOptionPane.showMessageDialog(dialog, "Số lượng phải lớn hơn 0.",
+                                                "Thông báo", JOptionPane.WARNING_MESSAGE);
+                        }
+                });
+
+                removeButton.addActionListener(event -> {
+                        int row = recipeTable.getSelectedRow();
+                        if (row >= 0) recipeModel.removeRow(row);
+                });
+
+                JPanel center = new JPanel(new BorderLayout(0, 10));
+                center.setOpaque(false);
+                center.add(editor, BorderLayout.NORTH);
+                center.add(new JScrollPane(recipeTable), BorderLayout.CENTER);
+                center.add(removeButton, BorderLayout.SOUTH);
+                root.add(center, BorderLayout.CENTER);
+
+                JButton cancel = new JButton("Hủy");
+                JButton save = createPrimaryButton("Lưu công thức");
+                cancel.addActionListener(event -> dialog.dispose());
+                save.addActionListener(event -> {
+                        try {
+                                List<RecipeDAO.RecipeLine> lines = new ArrayList<>();
+                                for (int row = 0; row < recipeModel.getRowCount(); row++) {
+                                        String ingredientName = String.valueOf(recipeModel.getValueAt(row, 0));
+                                        double quantity = Double.parseDouble(String.valueOf(recipeModel.getValueAt(row, 2)));
+                                        IngredientChoice choice = choices.stream()
+                                                        .filter(item -> item.name.equals(ingredientName))
+                                                        .findFirst().orElseThrow();
+                                        lines.add(new RecipeDAO.RecipeLine(choice.id, quantity));
+                                }
+                                recipeController.saveRecipe(productId, lines);
+                                dialog.dispose();
+                                JOptionPane.showMessageDialog(this, "Đã lưu công thức cho món " + product.name + ".",
+                                                "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                        } catch (Exception exception) {
+                                JOptionPane.showMessageDialog(dialog, "Không thể lưu công thức:\n" + exception.getMessage(),
+                                                "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        }
+                });
+                JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+                actions.setOpaque(false);
+                actions.add(cancel);
+                actions.add(save);
+                root.add(actions, BorderLayout.SOUTH);
+                dialog.setContentPane(root);
+                dialog.setVisible(true);
+        }
 
     // ============================================================
     // COPY IMAGE
@@ -1757,6 +1958,7 @@ public class ProductPanel extends JPanel {
         double price;
         boolean available;
         String imagePath;
+        String ingredients;
 
         Product(
                 String id,
@@ -1764,7 +1966,8 @@ public class ProductPanel extends JPanel {
                 String category,
                 double price,
                 boolean available,
-                String imagePath
+                String imagePath,
+                String ingredients
         ) {
 
             this.id = id;
@@ -1773,6 +1976,28 @@ public class ProductPanel extends JPanel {
             this.price = price;
             this.available = available;
             this.imagePath = imagePath;
+                        this.ingredients = ingredients == null ? "" : ingredients;
         }
+
+                String getIngredients() {
+                        return ingredients;
+                }
     }
+
+        private static class IngredientChoice {
+                private final int id;
+                private final String name;
+                private final String unit;
+
+                private IngredientChoice(int id, String name, String unit) {
+                        this.id = id;
+                        this.name = name;
+                        this.unit = unit;
+                }
+
+                @Override
+                public String toString() {
+                        return name + " (" + unit + ")";
+                }
+        }
 }

@@ -7,15 +7,22 @@ public class Product {
     private final double price;
     private final boolean available;
     private final String imagePath;
+    private final String ingredients;
 
     public Product(String id, String name, String category, double price,
                    boolean available, String imagePath) {
+        this(id, name, category, price, available, imagePath, "");
+    }
+
+    public Product(String id, String name, String category, double price,
+                   boolean available, String imagePath, String ingredients) {
         this.id = id;
         this.name = name;
         this.category = category;
         this.price = price;
         this.available = available;
         this.imagePath = imagePath;
+        this.ingredients = ingredients == null ? "" : ingredients;
     }
 
     public String getId() { return id; }
@@ -24,4 +31,5 @@ public class Product {
     public double getPrice() { return price; }
     public boolean isAvailable() { return available; }
     public String getImagePath() { return imagePath; }
+    public String getIngredients() { return ingredients; }
 }
