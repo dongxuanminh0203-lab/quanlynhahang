@@ -168,7 +168,7 @@ public class UserDAO {
             return "STAFF";
         }
         String value = role.trim().toUpperCase();
-        if ("ADMIN".equals(value) || "STAFF".equals(value)) {
+        if ("ADMIN".equals(value) || "STAFF".equals(value) || "CHEF".equals(value)) {
             return value;
         }
         return "STAFF";

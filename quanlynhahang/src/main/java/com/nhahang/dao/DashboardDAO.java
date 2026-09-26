@@ -38,7 +38,41 @@ public class DashboardDAO {
         stats.topProducts = getTopProducts(fromDate, toDate, filterByDate);
         stats.tableSummary = getTableSummary();
         stats.employeeSummary = getEmployeeSummary(fromDate, toDate, filterByDate);
+        stats.ingredientSummary = getIngredientInventorySummary();
         return stats;
+    }
+
+    public IngredientInventorySummary getIngredientInventorySummary() throws SQLException {
+        IngredientInventorySummary summary = new IngredientInventorySummary();
+        if (!tableExists("ingredients")) {
+            return summary;
+        }
+
+        String sql = "SELECT ingredient_name, unit, stock_quantity, active "
+                + "FROM ingredients WHERE active = TRUE ORDER BY stock_quantity ASC, ingredient_name ASC";
+
+        try (Connection connection = DBHelper.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                IngredientStockItem item = new IngredientStockItem(
+                        resultSet.getString("ingredient_name"),
+                        resultSet.getString("unit"),
+                        resultSet.getDouble("stock_quantity")
+                );
+                summary.items.add(item);
+                summary.ingredientCount++;
+                summary.totalStockQuantity += item.getStockQuantity();
+
+                if (item.getStockQuantity() <= 0) {
+                    summary.outOfStockCount++;
+                } else if (item.getStockQuantity() <= 10) {
+                    summary.lowStockCount++;
+                }
+            }
+        }
+        return summary;
     }
 
     private List<TableSummary> getTableSummary() throws SQLException {
@@ -250,6 +284,7 @@ public class DashboardDAO {
         private List<TopProduct> topProducts = new ArrayList<>();
         private List<TableSummary> tableSummary = new ArrayList<>();
         private List<EmployeeSummary> employeeSummary = new ArrayList<>();
+        private IngredientInventorySummary ingredientSummary = new IngredientInventorySummary();
 
         public double getTotalRevenue() { return totalRevenue; }
         public int getTotalOrders() { return totalOrders; }
@@ -259,6 +294,49 @@ public class DashboardDAO {
         public List<TopProduct> getTopProducts() { return topProducts; }
         public List<TableSummary> getTableSummary() { return tableSummary; }
         public List<EmployeeSummary> getEmployeeSummary() { return employeeSummary; }
+        public IngredientInventorySummary getIngredientSummary() { return ingredientSummary; }
+        public void setIngredientSummary(IngredientInventorySummary ingredientSummary) {
+            this.ingredientSummary = ingredientSummary == null ? new IngredientInventorySummary() : ingredientSummary;
+        }
+    }
+
+    public static class IngredientInventorySummary {
+        private int ingredientCount;
+        private double totalStockQuantity;
+        private int lowStockCount;
+        private int outOfStockCount;
+        private final List<IngredientStockItem> items = new ArrayList<>();
+
+        public int getIngredientCount() { return ingredientCount; }
+        public double getTotalStockQuantity() { return totalStockQuantity; }
+        public int getLowStockCount() { return lowStockCount; }
+        public int getOutOfStockCount() { return outOfStockCount; }
+        public List<IngredientStockItem> getItems() { return items; }
+    }
+
+    public static class IngredientStockItem {
+        private final String name;
+        private final String unit;
+        private final double stockQuantity;
+
+        public IngredientStockItem(String name, String unit, double stockQuantity) {
+            this.name = name;
+            this.unit = unit;
+            this.stockQuantity = stockQuantity;
+        }
+
+        public String getName() { return name; }
+        public String getUnit() { return unit; }
+        public double getStockQuantity() { return stockQuantity; }
+        public String getStatus() {
+            if (stockQuantity <= 0) {
+                return "Hết hàng";
+            }
+            if (stockQuantity <= 10) {
+                return "Sắp hết";
+            }
+            return "Đủ";
+        }
     }
 
     public static class TopProduct {

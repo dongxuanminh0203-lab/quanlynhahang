@@ -98,7 +98,10 @@ com\nhahang\view\IngredientPanel.class
 com\nhahang\view\InvoicePanel$2.class
 com\nhahang\controller\EmployeeController.class
 com\nhahang\view\EmployeePanel$4.class
+com\nhahang\dao\DashboardDAO$IngredientStockItem.class
 com\nhahang\view\UserPanel$6.class
+com\nhahang\view\StatisticsPanel$6.class
+com\nhahang\dao\DashboardDAO$IngredientInventorySummary.class
 com\nhahang\dao\UserDAO.class
 com\nhahang\view\HomePanel$1.class
 com\nhahang\service\IngredientService.class

@@ -4,6 +4,7 @@ import com.nhahang.dao.DashboardDAO;
 import com.nhahang.dao.TableDAO;
 import com.nhahang.model.RestaurantTable;
 import com.nhahang.model.User;
+import com.nhahang.util.PermissionUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -1124,7 +1125,15 @@ public class HomePanel extends JPanel {
                         } else if (
                                 type.equals("invoice")
                         ) {
-
+                            if (PermissionUtil.isChef(currentUser)) {
+                                JOptionPane.showMessageDialog(
+                                        HomePanel.this,
+                                        "Bạn không có quyền truy cập hóa đơn.",
+                                        "Từ chối truy cập",
+                                        JOptionPane.WARNING_MESSAGE
+                                );
+                                return;
+                            }
                             frame.showPanel(
                                     new InvoicePanel()
                             );

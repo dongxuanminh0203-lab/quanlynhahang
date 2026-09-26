@@ -195,7 +195,7 @@ public class UserPanel extends JPanel {
         boolean editing = user != null;
         JTextField usernameField = new JTextField(editing ? user.getUsername() : "");
         JPasswordField passwordField = new JPasswordField();
-        JComboBox<String> roleBox = new JComboBox<>(new String[]{"ADMIN", "STAFF"});
+        JComboBox<String> roleBox = new JComboBox<>(new String[]{"ADMIN", "STAFF", "CHEF"});
         JComboBox<EmployeeOption> employeeBox = new JComboBox<>();
         JCheckBox activeBox = new JCheckBox("Tài khoản đang hoạt động", !editing || user.isActive());
         if (editing) roleBox.setSelectedItem(user.getRole());

@@ -450,75 +450,76 @@ public class MainFrame extends JFrame {
                         "Nhật ký hoạt động"
                 );
 
-        addMenu(
-                top,
-                btnHome
-        );
+        if (PermissionUtil.isChef(currentUser)) {
+            addMenu(top, btnHome);
+            addMenu(top, btnTable);
+            addMenu(top, btnProduct);
+            if (PermissionUtil.canManageIngredients(currentUser)) {
+                addMenu(top, btnInventory);
+            }
+            addMenu(top, btnKitchen);
+        } else {
+            if (PermissionUtil.canViewHome(currentUser)) {
+                addMenu(top, btnHome);
+            }
 
-        addMenu(
-                top,
-                btnTable
-        );
+            if (PermissionUtil.canManageTables(currentUser)) {
+                addMenu(top, btnTable);
+            }
 
-        addMenu(
-                top,
-                btnProduct
-        );
+            if (PermissionUtil.canManageProducts(currentUser)) {
+                addMenu(top, btnProduct);
+            }
 
-        addMenu(
-                top,
-                btnInventory
-        );
+            if (PermissionUtil.canManageIngredients(currentUser)) {
+                addMenu(top, btnInventory);
+            }
 
-        addMenu(
-                top,
-                btnOrder
-        );
+            addMenu(top, btnOrder);
 
-        addMenu(
-                top,
-                btnKitchen
-        );
+            if (PermissionUtil.canAccessKitchen(currentUser)) {
+                addMenu(top, btnKitchen);
+            }
 
-        addMenu(
-                top,
-                btnInvoice
-        );
+            addMenu(top, btnInvoice);
 
-        addMenu(
-                top,
-                btnPayment
-        );
-
-        addMenu(
-                top,
-                btnEmployee
-        );
-
-        if (PermissionUtil.canManageUsers(currentUser)) {
             addMenu(
                     top,
-                    btnUser
+                    btnPayment
             );
-        }
 
-        addMenu(
-                top,
-                btnCustomer
-        );
+            if (PermissionUtil.canManageEmployees(currentUser)) {
+                addMenu(
+                        top,
+                        btnEmployee
+                );
+            }
 
-        if (PermissionUtil.canViewStatistics(currentUser)) {
+            if (PermissionUtil.canManageUsers(currentUser)) {
+                addMenu(
+                        top,
+                        btnUser
+                );
+            }
+
             addMenu(
                     top,
-                    btnStatistics
+                    btnCustomer
             );
-        }
 
-        if (PermissionUtil.canManageUsers(currentUser)) {
-            addMenu(
-                    top,
-                    btnAudit
-            );
+            if (PermissionUtil.canViewStatistics(currentUser)) {
+                addMenu(
+                        top,
+                        btnStatistics
+                );
+            }
+
+            if (PermissionUtil.canManageUsers(currentUser)) {
+                addMenu(
+                        top,
+                        btnAudit
+                );
+            }
         }
 
         JScrollPane menuScroll = new JScrollPane(top);

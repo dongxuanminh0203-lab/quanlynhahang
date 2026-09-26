@@ -56,13 +56,26 @@ public class StatisticsPanel extends JPanel {
                 try {
                     DashboardDAO.DashboardStats stats = get();
                     removeAll();
-                    add(createContent(stats, fromDate, toDate), BorderLayout.CENTER);
+                    JScrollPane scrollPane = new JScrollPane(
+                            createContent(stats, fromDate, toDate),
+                            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+                    );
+                    scrollPane.setBorder(null);
+                    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+                    add(scrollPane, BorderLayout.CENTER);
                     revalidate();
                     repaint();
                 } catch (Exception e) {
                     showError("Không thể tải thống kê:\n" + getErrorMessage(e));
                     removeAll();
-                    add(createFallbackPanel(), BorderLayout.CENTER);
+                    JScrollPane fallbackPane = new JScrollPane(
+                            createFallbackPanel(),
+                            ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+                    );
+                    fallbackPane.setBorder(null);
+                    add(fallbackPane, BorderLayout.CENTER);
                     revalidate();
                     repaint();
                 }
@@ -101,6 +114,7 @@ public class StatisticsPanel extends JPanel {
 
         JPanel statGrid = new JPanel(new GridLayout(1, 4, 18, 0));
         statGrid.setOpaque(false);
+        statGrid.setPreferredSize(new Dimension(0, 140));
         statGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 140));
 
         statGrid.add(createStatCard(formatMoney(stats.getTotalRevenue()), "Doanh thu", BLUE, "money"));
@@ -110,10 +124,13 @@ public class StatisticsPanel extends JPanel {
 
         content.add(statGrid);
         content.add(Box.createVerticalStrut(24));
+        content.add(createIngredientInventoryPanel(stats.getIngredientSummary()));
+        content.add(Box.createVerticalStrut(24));
 
         JPanel bottom = new JPanel(new GridLayout(1, 2, 20, 0));
         bottom.setOpaque(false);
-        bottom.setMaximumSize(new Dimension(Integer.MAX_VALUE, 280));
+        bottom.setPreferredSize(new Dimension(0, 320));
+        bottom.setMaximumSize(new Dimension(Integer.MAX_VALUE, 320));
 
         bottom.add(createTableSummaryPanel(stats.getTableSummary()));
         bottom.add(createEmployeeSummaryPanel(stats.getEmployeeSummary()));
@@ -123,7 +140,8 @@ public class StatisticsPanel extends JPanel {
 
         bottom = new JPanel(new GridLayout(1, 2, 20, 0));
         bottom.setOpaque(false);
-        bottom.setMaximumSize(new Dimension(Integer.MAX_VALUE, 280));
+        bottom.setPreferredSize(new Dimension(0, 320));
+        bottom.setMaximumSize(new Dimension(Integer.MAX_VALUE, 320));
 
         bottom.add(createSalesTable(stats.getTopProducts()));
         bottom.add(createSummaryPanel(stats));
@@ -313,6 +331,62 @@ public class StatisticsPanel extends JPanel {
             add(calendar);
             pack();
         }
+    }
+
+    private JPanel createIngredientInventoryPanel(DashboardDAO.IngredientInventorySummary inventory) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(WHITE);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER),
+                new EmptyBorder(18, 18, 18, 18)
+        ));
+
+        JLabel title = new JLabel("Thống kê kho nguyên liệu");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setForeground(TEXT);
+        panel.add(title, BorderLayout.NORTH);
+
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setOpaque(false);
+        content.add(Box.createVerticalStrut(14));
+
+        JPanel metricGrid = new JPanel(new GridLayout(1, 4, 12, 0));
+        metricGrid.setOpaque(false);
+        metricGrid.add(createStatCard(String.valueOf(inventory.getIngredientCount()), "Tổng nguyên liệu", BLUE, "box"));
+        metricGrid.add(createStatCard(formatQuantity(inventory.getTotalStockQuantity()), "Tổng tồn kho", GREEN, "stock"));
+        metricGrid.add(createStatCard(String.valueOf(inventory.getLowStockCount()), "Sắp hết", ORANGE, "warning"));
+        metricGrid.add(createStatCard(String.valueOf(inventory.getOutOfStockCount()), "Hết hàng", RED, "danger"));
+        content.add(metricGrid);
+        content.add(Box.createVerticalStrut(18));
+
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[]{"Nguyên liệu", "ĐVT", "Tồn kho", "Trạng thái"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        for (DashboardDAO.IngredientStockItem item : inventory.getItems()) {
+            model.addRow(new Object[]{
+                    item.getName(),
+                    item.getUnit(),
+                    formatQuantity(item.getStockQuantity()),
+                    item.getStatus()
+            });
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(32);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        content.add(new JScrollPane(table));
+        panel.add(content, BorderLayout.CENTER);
+        return panel;
     }
 
     private JPanel createSummaryPanel(DashboardDAO.DashboardStats stats) {
@@ -530,8 +604,19 @@ public class StatisticsPanel extends JPanel {
             case "receipt": return "✓";
             case "pending": return "◔";
             case "user": return "👤";
+            case "box": return "▣";
+            case "stock": return "▤";
+            case "warning": return "!";
+            case "danger": return "✕";
             default: return "•";
         }
+    }
+
+    private String formatQuantity(double value) {
+        if (Math.abs(value - Math.rint(value)) < 0.0001) {
+            return String.format(Locale.US, "%.0f", value);
+        }
+        return String.format(Locale.US, "%.2f", value).replaceAll("\\.?0+$", "");
     }
 
     private JPanel createFallbackPanel() {
